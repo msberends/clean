@@ -22,12 +22,14 @@
 #' 
 #' Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s.
 #' @param x data to clean
-#' @param true \link[base]{regex} to match \code{TRUE}, see Details
-#' @param false \link[base]{regex} to match \code{FALSE}, see Details
+#' @param true \link[base]{regex} to interpret values as \code{TRUE}, see Details
+#' @param false \link[base]{regex} to interpret values as \code{FALSE}, see Details
+#' @param na  \link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}
 #' @param keep \link[base]{regex} to define the character that must be kept, see Details
 #' @param levels new factor levels, which can be regular expressions to match existing values, see Details
 #' @param ordered logical to indicate whether the factor levels must be ordered
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
+#' @param ... other parameters passed on to \code{\link{as.Date}}
 #' @details
 #' Using \code{clean()} on a vector will guess a cleaning function based on the potential number of \code{NAs} it returns. Using \code{clean()} on a data.frame to apply this guessed cleaning over all columns.
 #' 
@@ -67,6 +69,15 @@
 #' clean("12 06 2012")
 #' clean(data.frame(dates = "2013-04-02", 
 #'                  logicals = c("yes", "no")))
+#'
+#' \donttest{                  
+#' # Clean data?
+#' freq(unclean$gender)
+#' 
+#' # Clean it and check again:
+#' freq(clean_factor(unclean$gender, 
+#'                   levels = c("^m" = "Male", "^f" = "Female")))
+#' }
 clean <- function(x) {
   UseMethod("clean")
 }
@@ -115,6 +126,7 @@ clean_logical <- function(x, true = "^(Y.*|J.*|T|TRUE)$", false = "^(N.*|F|FALSE
 #' @export
 clean_factor <- function(x, levels = unique(x), ordered = FALSE) {
   if (!all(levels %in% x)) {
+    new_x <- rep(NA_character_, length(x))
     # sort descending on character length
     levels_nchar <- levels[rev(order(nchar(levels)))]
     new_x <- rep(NA_character_, length(x))
@@ -122,7 +134,21 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE) {
     for (i in 1:length(levels_nchar)) {
       new_x[is.na(new_x) & grepl(levels_nchar[i], x, ignore.case = TRUE)] <- levels_nchar[i]
     }
+    if (!is.null(names(levels))) {
+      # override named levels
+      x_set_with_name <- logical(length(x))
+      for (i in 1:length(levels)) {
+        if (names(levels)[i] != "") {
+          new_x[grepl(names(levels)[i], x, ignore.case = TRUE) & x_set_with_name == FALSE] <- levels[i]
+          x_set_with_name[grepl(names(levels)[i], x, ignore.case = TRUE)] <- TRUE
+        }
+      }
+    }
     x <- new_x
+  }
+  if (length(levels[!levels %in% x]) > 0) {
+    warning("These factor levels were not found in the data: ", 
+            toString(sort(levels[!levels %in% x])), call. = FALSE)
   }
   factor(x = x, levels = levels, ordered = ordered)
 }
@@ -139,9 +165,10 @@ clean_Date <- function(x, format = NULL, ...) {
   }
   # start guessing
   x_numeric <- suppressWarnings(as.numeric(x))
-  if (all(x_numeric %in% c(as.integer(as.Date("2000-01-01") - as.Date("1899-12-30")):as.integer(Sys.Date() - as.Date("1899-12-30"))))) {
+  if (all(x_numeric %in% c(as.integer(as.Date("1970-01-01") - as.Date("1899-12-30")):as.integer(Sys.Date() - as.Date("1899-12-30"))), na.rm = TRUE)) {
     # is Excel date
-    return(as.Date(as.numeric(x), origin = "1899-12-30"))
+    message("Cleaning dates using Excel format")
+    return(as.Date(x_numeric, origin = "1899-12-30"))
   }
   # try any dateformat: 1-2 day numbers, 1-3 month numbers, 2/4 year numbers, in any order
   days <- c("d", "dd", "ddd", "dddd")
@@ -163,7 +190,7 @@ clean_Date <- function(x, format = NULL, ...) {
                                                   format = format_datetime(format[i])))
       if (all(!is.na(validated_dates))
           & all(validated_dates > as.Date("1900-01-01"))
-          & (grepl("[a-zA-Z]", x) | all(nchar(x) == nchar(format[i])))) {
+          & (all(grepl("[a-zA-Z]", x)) | all(nchar(x) == nchar(format[i])))) {
         message("Cleaning dates using format '", format[i], "'")
         return(format_datetime(format[i]))
       }
@@ -201,6 +228,8 @@ clean_Date <- function(x, format = NULL, ...) {
   if (!is.null(new_format)) {
     return(as.Date(as.character(x), format = new_format))
   }
+  # last resort: try Excel
+  #if (all(x %in% c(25569:(as.integer(Sys.Date() - as.Date("1899-12-30"))))))
   warning("date/time format could not be determined automatically", call. = FALSE)
   x
 }

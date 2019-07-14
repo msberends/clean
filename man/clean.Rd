@@ -28,15 +28,19 @@ clean_character(x, keep = "[a-z]")
 \arguments{
 \item{x}{data to clean}
 
-\item{true}{\link[base]{regex} to match \code{TRUE}, see Details}
+\item{true}{\link[base]{regex} to interpret values as \code{TRUE}, see Details}
 
-\item{false}{\link[base]{regex} to match \code{FALSE}, see Details}
+\item{false}{\link[base]{regex} to interpret values as \code{FALSE}, see Details}
+
+\item{na}{\link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}}
 
 \item{levels}{new factor levels, which can be regular expressions to match existing values, see Details}
 
 \item{ordered}{logical to indicate whether the factor levels must be ordered}
 
 \item{format}{a date format that will be passed on to \code{\link{format_datetime}}, see Details}
+
+\item{...}{other parameters passed on to \code{\link{as.Date}}}
 
 \item{keep}{\link[base]{regex} to define the character that must be kept, see Details}
 }
@@ -56,19 +60,37 @@ Info about the different functions:
 }
 }
 \examples{
+# LOGICALS
 clean_logical(c("Yes", "No"))
 clean_logical(x = c("Positive", "Negative", "Unknown", "Some value"),
               true = "pos", false = "neg")
 
+# FACTORS
 gender_age <- c("male 0-50", "male 50+", "female 0-50", "female 50+")
 clean_factor(gender_age, c("M", "F"))
 clean_factor(gender_age, c("Male", "Female"))
 clean_factor(gender_age, c("0-50", "50+"), ordered = TRUE)
 
+# DATES
 clean_Date("13jul18", "ddmmmyy")
 clean_Date("12 august 2010")
+clean_Date("12 06 2012")
 # got sent data from Excel?
 clean_Date(36526)
 clean_Date("43658")
 clean_Date("14526", "Excel") # "1939-10-08"
+ 
+# GUESS TYPE OF CLASS
+clean("12 06 2012")
+clean(data.frame(dates = "2013-04-02", 
+                 logicals = c("yes", "no")))
+
+\donttest{                  
+# Clean data?
+freq(unclean$gender)
+
+# Clean it and check again:
+freq(clean_factor(unclean$gender, 
+                  levels = c("^m" = "Male", "^f" = "Female")))
+}
 }

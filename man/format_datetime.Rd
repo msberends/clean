@@ -21,6 +21,6 @@ format(Sys.time(), "\%a \%b \%d \%Y \%X")
 #> "Fri Jul 12 2019 06:00:17"
 
 # Easy to remember and write:
-format(Sys.time(), format_datetime("ddd mmm dd yyyy hh:mm:ss"))
+format(Sys.time(), format_datetime("ddd mmm dd yyyy HH:MM:ss"))
 #> "Fri Jul 12 2019 06:00:17"
 }

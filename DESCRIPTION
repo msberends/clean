@@ -1,6 +1,6 @@
 Package: clean
 Title: Cleaning Data Sets
-Version: 0.0.1
+Version: 0.0.2
 Date: 2019-07-12
 Authors@R: 
   person(
@@ -9,9 +9,16 @@ Authors@R:
     email = "m.s.berends@umcg.nl",
     role = c("aut", "cre"),
     comment = c(ORCID = "0000-0001-7620-1800"))
-Description: Functions to quickly clean columns in a data 
-  set, with zero dependencies.
-Depends: R (>= 3.0.0)
+Description: Functions to quickly check and clean columns in a data set.
+Depends: 
+  R (>= 3.0.0)
+Imports:
+  crayon,
+  knitr,
+  rlang
+Suggests:
+  rmarkdown,
+  testthat (>= 1.0.2)
 URL: https://github.com/msberends/clean
 BugReports: https://github.com/msberends/clean/issues
 License: GPL-2 | file LICENSE
