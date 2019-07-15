@@ -64,6 +64,14 @@
 #' clean_Date(36526)
 #' clean_Date("43658")
 #' clean_Date("14526", "Excel") # "1939-10-08"
+#' 
+#' # NUMERICS
+#' clean_numeric("qwerty123456")
+#' clean_numeric("Positive (0.143)")
+#' 
+#' # CHARACTERS
+#' clean_character("qwerty123456")
+#' clean_character("Positive (0.143)")
 #'  
 #' # GUESS TYPE OF CLASS
 #' clean("12 06 2012")
@@ -163,46 +171,82 @@ clean_Date <- function(x, format = NULL, ...) {
       return(as.Date(x = x, format = format_datetime(format), ...))
     }
   }
+  
+  x.bak <- x
+  
   # start guessing
+  msg_clean_as <- function(format_set) {
+    if (tolower(format_set) == "excel") {
+      message("Cleaning dates using Excel format")
+    } else {
+      message("Cleaning dates using format '", format_set, "' ('", format_datetime(format_set), "')")
+    }
+  }
+
   x_numeric <- suppressWarnings(as.numeric(x))
   if (all(x_numeric %in% c(as.integer(as.Date("1970-01-01") - as.Date("1899-12-30")):as.integer(Sys.Date() - as.Date("1899-12-30"))), na.rm = TRUE)) {
     # is Excel date
-    message("Cleaning dates using Excel format")
+    msg_clean_as("Excel")
     return(as.Date(x_numeric, origin = "1899-12-30"))
   }
+
+
+  # replace any non-number/separators ("-", ".", etc.) with space
+  x <- trimws(gsub("[^0-9a-z]+", " ", x, ignore.case = TRUE))
+
+  # remove 1st, 2nd, 3rd, 4th followed by a space or at the end
+  x <- gsub("([0-9])(st|nd|rd|th) ", "\\1", x, ignore.case = TRUE)
+  x <- gsub("([0-9])(st|nd|rd|th)$", "\\1", x, ignore.case = TRUE)
+  
+  # first check if format is like 1-2 digits, text, 2-4 digits (12 August 2010) which is observed a lot
+  if (all(grepl("^[0-9]+ [a-z]+ [0-9]+$", x[!is.na(x)], ignore.case = TRUE))) {
+    if (all(grepl("^[0-9]{2} [a-z]{3} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "dd mmm yyyy"
+    if (all(grepl("^[0-9]{2} [a-z]{3} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "dd mmm yy"
+    if (all(grepl("^[0-9]{1} [a-z]{3} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "d mmm yyyy"
+    if (all(grepl("^[0-9]{1} [a-z]{3} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "d mmm yy"
+    if (all(grepl("^[0-9]{2} [a-z]{4,} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "dd mmmm yyyy"
+    if (all(grepl("^[0-9]{2} [a-z]{4,} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "dd mmmm yy"
+    if (all(grepl("^[0-9]{1} [a-z]{4,} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "d mmmm yyyy"
+    if (all(grepl("^[0-9]{1} [a-z]{4,} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "d mmmm yy"
+    msg_clean_as(new_format)
+    return(as.Date(as.character(x), format = format_datetime(new_format)))
+  }
+  
+  # now remove spaces too
+  x <- gsub(" +", "", x)
+  
   # try any dateformat: 1-2 day numbers, 1-3 month numbers, 2/4 year numbers, in any order
   days <- c("d", "dd", "ddd", "dddd")
   months <- c("mm", "mmm", "mmmm")
   years <- c("yyyy", "yy")
-  
   validated_format <- function(x, a, b, c) {
     # strip any non-number ("-", ".", etc.) and remove NAs for testing
     x_withoutNAs <- x[!is.na(x)]
     # create vector with all possible options in the order of a, b, c
-    format <- do.call(paste0, 
+    format <- do.call(paste, 
                       expand.grid(a, b, c,
                                   stringsAsFactors = FALSE,
                                   KEEP.OUT.ATTRS = FALSE))
     # sort descending on character length
     format <- format[rev(order(nchar(format)))]
+    format_spaced <- format
+    # remove spaces from the format too, it was already removed from input
+    format <- gsub(" ", "", format)
     for (i in 1:length(format)) {
       validated_dates <- suppressWarnings(as.Date(as.character(x_withoutNAs), 
                                                   format = format_datetime(format[i])))
       if (all(!is.na(validated_dates))
           & all(validated_dates > as.Date("1900-01-01"))
           & (all(grepl("[a-zA-Z]", x)) | all(nchar(x) == nchar(format[i])))) {
-        message("Cleaning dates using format '", format[i], "'")
+        msg_clean_as(format_spaced[i])
         return(format_datetime(format[i]))
       }
     }
     # no valid format found
     return(NULL)
   }
-
-  # strip any non-number ("-", ".", etc.) and remove NAs for testing
-  x <- gsub("[^0-9a-z]", "", x, ignore.case = TRUE)
-
-  # now try all 3! (factorial(3) = 6) combinations
+  
+  # now try all `3!` (factorial(3) = 6) combinations
   # ymd ydm mdy myd dmy dym
   new_format <- validated_format(x, years, months, days)
   if (!is.null(new_format)) {
@@ -230,8 +274,8 @@ clean_Date <- function(x, format = NULL, ...) {
   }
   # last resort: try Excel
   #if (all(x %in% c(25569:(as.integer(Sys.Date() - as.Date("1899-12-30"))))))
-  warning("date/time format could not be determined automatically", call. = FALSE)
-  x
+  warning("Date/time format could not be determined automatically, returning unchanged data", call. = FALSE)
+  x.bak
 }
 
 #' @rdname clean

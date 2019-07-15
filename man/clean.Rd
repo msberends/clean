@@ -79,6 +79,14 @@ clean_Date("12 06 2012")
 clean_Date(36526)
 clean_Date("43658")
 clean_Date("14526", "Excel") # "1939-10-08"
+
+# NUMERICS
+clean_numeric("qwerty123456")
+clean_numeric("Positive (0.143)")
+
+# CHARACTERS
+clean_character("qwerty123456")
+clean_character("Positive (0.143)")
  
 # GUESS TYPE OF CLASS
 clean("12 06 2012")

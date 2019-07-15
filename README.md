@@ -61,8 +61,12 @@ Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it 
   #> [1] "2018-07-13"
   
   clean_Date("12 06 2012")
-  #> Cleaning dates using format 'ddmmyyyy'
+  #> Cleaning dates using format 'dd mm yyyy' ('%d %m %Y')
   #> [1] "2012-06-12"
+  
+  clean_Date("14 august 2010")
+  #> Cleaning dates using format 'dd mmmm yyyy' ('%d %B %Y')
+  #> [1] "2010-08-14"
   
   clean_Date(38071)
   #> Cleaning dates using Excel format
@@ -82,7 +86,7 @@ Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it 
   clean_numeric("qwerty123456")
   #> [1] 123456
   
-  clean_numeric("Positive (0.143")
+  clean_numeric("Positive (0.143)")
   #> [1] 0.143
   ```
   
@@ -92,7 +96,10 @@ Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it 
   clean_character("qwerty123456")
   #> [1] "qwerty"
   
-  clean_character("Positive (0.143")
+  clean_character("qwerty123456", "[q-z]")
+  #> [1] "qwrty"
+  
+  clean_character("Positive (0.143)")
   #> [1] "Positive"
   ```
   

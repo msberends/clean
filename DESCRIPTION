@@ -1,6 +1,6 @@
 Package: clean
 Title: Cleaning Data Sets
-Version: 0.0.2
+Version: 0.0.3
 Date: 2019-07-12
 Authors@R: 
   person(
