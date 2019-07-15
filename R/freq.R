@@ -129,9 +129,9 @@ freq.default <- function(x,
                          decimal.mark = getOption("OutDec"),
                          big.mark = "",
                          ...) {
-
+  
   format <- list(...)$format
-
+  
   NAs <- x[is.na(x)]
   if (na.rm == TRUE) {
     x_class <- class(x)
@@ -270,6 +270,7 @@ freq.factor <- function(x, ..., droplevels = FALSE) {
 }
 
 #' @exportMethod freq.list
+#' @export
 #' @noRd
 freq.list <- function(x, ...) {
   freq(as.data.frame(x, stringsAsFactors = FALSE), ...)
@@ -296,6 +297,7 @@ freq.table <- function(x, ..., sep = " ") {
 
 #' @exportMethod freq.data.frame
 #' @importFrom rlang enquos eval_tidy
+#' @export
 #' @noRd
 freq.data.frame <- function(x,
                             ...,
@@ -346,6 +348,10 @@ freq.data.frame <- function(x,
     x <- do.call(paste, c(x[colnames(x)], sep = sep))
   } else {
     x <- x[, 1]
+  }
+  
+  if (!is.null(ncol(x))) {
+    x <- as.data.frame(x, stringsAsFactors = FALSE)[, 1]
   }
   
   freq(x = x,
@@ -427,12 +433,14 @@ freq.Date <- function(x, ..., format = "yyyy-mm-dd") {
                                     " days)")))
 }
 #' @exportMethod freq.POSIXct
+#' @export
 #' @noRd
 freq.POSIXct <- function(x, ...) {
   freq.Date(x, ...)
 }
 
 #' @exportMethod freq.difftime
+#' @export
 #' @noRd
 freq.difftime <- function(x, ...) {
   freq.default(x = x, ...,

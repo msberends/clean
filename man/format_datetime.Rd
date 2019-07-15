@@ -10,7 +10,7 @@ format_datetime(format)
 \item{format}{the format that needs to be transformed}
 }
 \description{
-Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (\%d/\%m/\%Y), see Examples.
+Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (\%d-\%m-\%Y), see Examples.
 }
 \examples{
 format_datetime("yyyy/mm/dd")
