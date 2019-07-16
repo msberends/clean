@@ -128,6 +128,7 @@ The function \code{top_freq} will include more than \code{n} rows if there are t
 Interested in extending the \code{freq()} function with your own class? Add a method like below to your package, and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like we did with e.g. \code{freq.difftime}:
 \preformatted{
 #' @exportMethod freq.difftime
+#' @export
 #' @noRd
 freq.difftime <- function(x, ...) {
   freq.default(x = x, ...,

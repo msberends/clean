@@ -68,6 +68,7 @@
 #' Interested in extending the \code{freq()} function with your own class? Add a method like below to your package, and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like we did with e.g. \code{freq.difftime}:
 #' \preformatted{
 #' #' @exportMethod freq.difftime
+#' #' @export
 #' #' @noRd
 #' freq.difftime <- function(x, ...) {
 #'   freq.default(x = x, ...,
@@ -348,10 +349,6 @@ freq.data.frame <- function(x,
     x <- do.call(paste, c(x[colnames(x)], sep = sep))
   } else {
     x <- x[, 1]
-  }
-  
-  if (!is.null(ncol(x))) {
-    x <- as.data.frame(x, stringsAsFactors = FALSE)[, 1]
   }
   
   freq(x = x,
