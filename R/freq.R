@@ -387,7 +387,7 @@ freq.numeric <- function(x, ..., digits = 2) {
   # Mean:      71.06
   # SD:        14.12 (CV: 0.20, MAD: 13.34)
   # Five-Num:  14 | 63 | 74 | 82 | 97 (IQR: 19, CQV: 0.13)
-  # Outliers:  32 (unique count: 12)
+  # Outliers:  32 (0.34%)
   
   freq.default(x = x, ..., 
                .add_header = list(mean = round2(base::mean(x, na.rm = TRUE), digits = digits),

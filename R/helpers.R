@@ -68,7 +68,7 @@ cqv <- function(x, na.rm = TRUE) {
   (fives[4] - fives[2]) / (fives[4] + fives[2])
 }
 
-# source: scales::number + scales::precision -> scales::percent
+# source: scales::number -> scales::percent
 percent_scales <- function (x,
                             accuracy = NULL,
                             scale = 100,
@@ -90,8 +90,7 @@ percent_scales <- function (x,
 }
 
 # No export, no Rd
-# based on scales::percent
-percent <- function(x, round = 1, force_zero = FALSE, decimal.mark = getOption("OutDec"), ...) {
+percent <- function(x, round = 1, force_zero = TRUE, decimal.mark = getOption("OutDec"), ...) {
   x <- percent_scales(x = as.double(x),
                       accuracy = 1 / 10 ^ round,
                       decimal.mark = decimal.mark,
