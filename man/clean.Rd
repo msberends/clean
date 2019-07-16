@@ -17,7 +17,8 @@ clean(x)
 clean_logical(x, true = "^(Y.*|J.*|T|TRUE)$",
   false = "^(N.*|F|FALSE)$", na = NULL)
 
-clean_factor(x, levels = unique(x), ordered = FALSE)
+clean_factor(x, levels = unique(x), ordered = FALSE,
+  droplevels = FALSE)
 
 clean_Date(x, format = NULL, ...)
 
@@ -37,6 +38,8 @@ clean_character(x, keep = "[a-z]")
 \item{levels}{new factor levels, which can be regular expressions to match existing values, see Details}
 
 \item{ordered}{logical to indicate whether the factor levels must be ordered}
+
+\item{droplevels}{logical to indicate whether non-existing factor levels should be dropped}
 
 \item{format}{a date format that will be passed on to \code{\link{format_datetime}}, see Details}
 

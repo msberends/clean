@@ -27,6 +27,7 @@
 #' @param na  \link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}
 #' @param keep \link[base]{regex} to define the character that must be kept, see Details
 #' @param levels new factor levels, which can be regular expressions to match existing values, see Details
+#' @param droplevels logical to indicate whether non-existing factor levels should be dropped
 #' @param ordered logical to indicate whether the factor levels must be ordered
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param ... other parameters passed on to \code{\link{as.Date}}
@@ -103,7 +104,7 @@ clean.default <- function(x) {
       return(fn(x_withoutNA))
     }
   }
-  warning("no appropiate cleaning function found")
+  warning("no appropriate cleaning function found")
   x
 }
 
@@ -132,7 +133,7 @@ clean_logical <- function(x, true = "^(Y.*|J.*|T|TRUE)$", false = "^(N.*|F|FALSE
 
 #' @rdname clean
 #' @export
-clean_factor <- function(x, levels = unique(x), ordered = FALSE) {
+clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FALSE) {
   if (!all(levels %in% x)) {
     new_x <- rep(NA_character_, length(x))
     # sort descending on character length
@@ -154,11 +155,16 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE) {
     }
     x <- new_x
   }
-  if (length(levels[!levels %in% x]) > 0) {
+  if (length(levels[!levels %in% x]) > 0 & droplevels == FALSE) {
     warning("These factor levels were not found in the data: ", 
             toString(sort(levels[!levels %in% x])), call. = FALSE)
   }
-  factor(x = x, levels = levels, ordered = ordered)
+  x <- factor(x = x, levels = levels, ordered = ordered)
+  if (droplevels == TRUE) {
+    droplevels(x)
+  } else {
+    x
+  }
 }
 
 #' @rdname clean
