@@ -15,16 +15,16 @@ clean(x)
 \method{clean}{data.frame}(x)
 
 clean_logical(x, true = "^(Y.*|J.*|T|TRUE)$",
-  false = "^(N.*|F|FALSE)$", na = NULL)
+  false = "^(N.*|F|FALSE)$", na = NULL, fixed = FALSE)
 
 clean_factor(x, levels = unique(x), ordered = FALSE,
-  droplevels = FALSE)
+  droplevels = FALSE, fixed = FALSE)
 
-clean_Date(x, format = NULL, ...)
+clean_Date(x, format = NULL, fixed = FALSE, ...)
 
-clean_numeric(x, keep = "[0-9.,]")
+clean_numeric(x, keep = "[0-9.,]", fixed = FALSE)
 
-clean_character(x, keep = "[a-z]")
+clean_character(x, keep = "[a-z]", fixed = FALSE)
 }
 \arguments{
 \item{x}{data to clean}
@@ -35,7 +35,9 @@ clean_character(x, keep = "[a-z]")
 
 \item{na}{\link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}}
 
-\item{levels}{new factor levels, which can be regular expressions to match existing values, see Details}
+\item{fixed}{logical to indicate whether regular expressions should be turned off}
+
+\item{levels}{new factor levels, may be named with regular expressions to match existing values, see Details}
 
 \item{ordered}{logical to indicate whether the factor levels must be ordered}
 
@@ -61,6 +63,8 @@ Info about the different functions:
   \item{\code{clean_Date}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
   \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{keep} to match values that must be kept, using case-insensitive regular expressions (\link[base]{regex}). See Examples.}
 }
+
+The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instread interpret the expression as a fixed value and will throw a warning.
 }
 \examples{
 # LOGICALS

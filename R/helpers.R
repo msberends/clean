@@ -44,6 +44,18 @@
   }
 }
 
+# throws warning on error, so invalid regex will still run as fixed value
+grepl_warn_on_error <- function(pattern, x, ignore.case = FALSE, perl = FALSE,
+                                fixed = FALSE, useBytes = FALSE) {
+  tryCatch(expr = base::grepl(pattern = pattern, x = x, ignore.case = ignore.case, perl = perl,
+                              fixed = fixed, useBytes = useBytes),
+           error = function(e) {
+             warning(paste0(e$message, " - now interpreting as fixed value"), call. = FALSE)
+             return(base::grepl(pattern = pattern, x = x, ignore.case = ignore.case,
+                                fixed = TRUE, useBytes = useBytes))
+           })
+}
+
 # works exactly like round(), but rounds `round(44.55, 1)` as 44.6 instead of 44.5
 # and adds decimal zeroes until `digits` is reached when force_zero = TRUE
 round2 <- function(x, digits = 0, force_zero = TRUE) {

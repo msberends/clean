@@ -26,9 +26,10 @@
 #' @param false \link[base]{regex} to interpret values as \code{FALSE}, see Details
 #' @param na  \link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}
 #' @param keep \link[base]{regex} to define the character that must be kept, see Details
-#' @param levels new factor levels, which can be regular expressions to match existing values, see Details
+#' @param levels new factor levels, may be named with regular expressions to match existing values, see Details
 #' @param droplevels logical to indicate whether non-existing factor levels should be dropped
 #' @param ordered logical to indicate whether the factor levels must be ordered
+#' @param fixed logical to indicate whether regular expressions should be turned off
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param ... other parameters passed on to \code{\link{as.Date}}
 #' @details
@@ -42,6 +43,8 @@
 #'   \item{\code{clean_Date}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
 #'   \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{keep} to match values that must be kept, using case-insensitive regular expressions (\link[base]{regex}). See Examples.}
 #' }
+#' 
+#' The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instread interpret the expression as a fixed value and will throw a warning.
 #' @rdname clean
 #' @export
 #' @exportMethod clean
@@ -99,7 +102,7 @@ clean.default <- function(x) {
   fns <- c("logical", "Date", "numeric", "character")
   for (i in 1:length(fns)) {
     fn <- get(paste0("clean_", fns[i]), envir = asNamespace("clean"))
-    if (all(!is.na(suppressMessages(fn(x_withoutNA))))) {
+    if (all(!is.na(suppressWarnings(suppressMessages(fn(x_withoutNA)))))) {
       message("Cleaning to '", fns[i], "'")
       return(fn(x_withoutNA))
     }
@@ -114,26 +117,26 @@ clean.default <- function(x) {
 clean.data.frame <- function(x) {
   n <- 0
   as.data.frame(lapply(x, function(y) {
-    message("Variable '", colnames(x)[n <<- n + 1], "': ", appendLF = FALSE)
+    message("[VARIABLE '", colnames(x)[n <<- n + 1], "'] ", appendLF = FALSE)
     clean(y)
   }), stringsAsFactors = FALSE)
 }
 
 #' @rdname clean
 #' @export
-clean_logical <- function(x, true = "^(Y.*|J.*|T|TRUE)$", false = "^(N.*|F|FALSE)$", na = NULL) {
+clean_logical <- function(x, true = "^(Y.*|J.*|T|TRUE)$", false = "^(N.*|F|FALSE)$", na = NULL, fixed = FALSE) {
   conv <- rep(NA, length(x))
-  conv[x %in% c(-1, 1) | grepl(true, x, ignore.case = TRUE)] <- TRUE
-  conv[x == 0 | grepl(false, x, ignore.case = TRUE)] <- FALSE
+  conv[x %in% c(-1, 1) | grepl_warn_on_error(true, x, ignore.case = TRUE, fixed = fixed)] <- TRUE
+  conv[x == 0 | grepl_warn_on_error(false, x, ignore.case = TRUE, fixed = fixed)] <- FALSE
   if (!is.null(na)) {
-    conv[grepl(na, x, ignore.case = TRUE)] <- NA
+    conv[grepl_warn_on_error(na, x, ignore.case = TRUE, fixed = fixed)] <- NA
   }
   as.logical(conv)
 }
 
 #' @rdname clean
 #' @export
-clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FALSE) {
+clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FALSE, fixed = FALSE) {
   if (!all(levels %in% x)) {
     new_x <- rep(NA_character_, length(x))
     # sort descending on character length
@@ -141,15 +144,18 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FA
     new_x <- rep(NA_character_, length(x))
     # fill in levels
     for (i in 1:length(levels_nchar)) {
-      new_x[is.na(new_x) & grepl(levels_nchar[i], x, ignore.case = TRUE)] <- levels_nchar[i]
+      # first try exact match
+      tryCatch(new_x[is.na(new_x) & x == levels_nchar[i]] <- levels_nchar[i], error = function(e) invisible())
+      # then regular expressions
+      new_x[is.na(new_x) & grepl_warn_on_error(levels_nchar[i], x, ignore.case = TRUE, fixed = fixed)] <- levels_nchar[i]
     }
     if (!is.null(names(levels))) {
       # override named levels
       x_set_with_name <- logical(length(x))
       for (i in 1:length(levels)) {
         if (names(levels)[i] != "") {
-          new_x[grepl(names(levels)[i], x, ignore.case = TRUE) & x_set_with_name == FALSE] <- levels[i]
-          x_set_with_name[grepl(names(levels)[i], x, ignore.case = TRUE)] <- TRUE
+          new_x[grepl_warn_on_error(names(levels)[i], x, ignore.case = TRUE, fixed = fixed) & x_set_with_name == FALSE] <- levels[i]
+          x_set_with_name[grepl_warn_on_error(names(levels)[i], x, ignore.case = TRUE, fixed = fixed)] <- TRUE
         }
       }
     }
@@ -169,7 +175,7 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FA
 
 #' @rdname clean
 #' @export
-clean_Date <- function(x, format = NULL, ...) {
+clean_Date <- function(x, format = NULL, fixed = FALSE, ...) {
   if (!is.null(format)) {
     if (tolower(format) == "excel") {
       return(as.Date(as.numeric(x), origin = "1899-12-30"))
@@ -188,18 +194,18 @@ clean_Date <- function(x, format = NULL, ...) {
       message("Cleaning dates using format '", format_set, "' ('", format_datetime(format_set), "')")
     }
   }
-
+  
   x_numeric <- suppressWarnings(as.numeric(x))
   if (all(x_numeric %in% c(as.integer(as.Date("1970-01-01") - as.Date("1899-12-30")):as.integer(Sys.Date() - as.Date("1899-12-30"))), na.rm = TRUE)) {
     # is Excel date
     msg_clean_as("Excel")
     return(as.Date(x_numeric, origin = "1899-12-30"))
   }
-
-
+  
+  
   # replace any non-number/separators ("-", ".", etc.) with space
   x <- trimws(gsub("[^0-9a-z]+", " ", x, ignore.case = TRUE))
-
+  
   # remove 1st, 2nd, 3rd, 4th followed by a space or at the end
   x <- gsub("([0-9])(st|nd|rd|th) ", "\\1", x, ignore.case = TRUE)
   x <- gsub("([0-9])(st|nd|rd|th)$", "\\1", x, ignore.case = TRUE)
@@ -280,18 +286,20 @@ clean_Date <- function(x, format = NULL, ...) {
   }
   # last resort: try Excel
   #if (all(x %in% c(25569:(as.integer(Sys.Date() - as.Date("1899-12-30"))))))
-  warning("Date/time format could not be determined automatically, returning unchanged data", call. = FALSE)
-  x.bak
+  warning("Date/time format could not be determined automatically, returning NAs", call. = FALSE)
+  as.Date(rep(NA, length(x)))
 }
 
 #' @rdname clean
 #' @export
-clean_numeric <- function(x, keep = "[0-9.,]") {
-  as.numeric(gsub(sub("[", "[^", keep, fixed = TRUE), "", gsub(",", ".", x, fixed = TRUE)))
+clean_numeric <- function(x, keep = "[0-9.,]", fixed = FALSE) {
+  values <- unlist(strsplit(x, ""))
+  as.numeric(paste0(values[grepl_warn_on_error(keep, values, fixed = fixed)], collapse = ""))
 }
 
 #' @rdname clean
 #' @export
-clean_character <- function(x, keep = "[a-z]") {
-  as.character(gsub(sub("[", "[^", keep, fixed = TRUE), "", x, ignore.case = TRUE))
+clean_character <- function(x, keep = "[a-z]", fixed = FALSE) {
+  values <- unlist(strsplit(x, ""))
+  as.numeric(paste0(values[grepl_warn_on_error(keep, values, fixed = fixed)], collapse = ""))
 }

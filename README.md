@@ -103,6 +103,8 @@ Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it 
   #> [1] "Positive"
   ```
   
+  Invalid regular expression used in any of the above functions will never fail to run, but instead throw a warning and will interpret the expression as a fixed value.
+  
 ### Checking
 
 Use `freq()` to create comprehensive frequency tables to check your data. The function supports a lot of different classes (types of data) and is even extendible by other packages.
