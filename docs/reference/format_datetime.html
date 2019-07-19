@@ -34,7 +34,7 @@
   
 <meta property="og:title" content="Readable date format to POSIX — format_datetime" />
 
-<meta property="og:description" content="Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (%d/%m/%Y), see Examples." />
+<meta property="og:description" content="Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (%d-%m-%Y), see Examples." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -65,7 +65,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7</span>
       </span>
     </div>
 
@@ -111,7 +111,7 @@
 
     <div class="ref-description">
     
-    <p>Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (%d/%m/%Y), see Examples.</p>
+    <p>Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (%d-%m-%Y), see Examples.</p>
     
     </div>
 
@@ -131,10 +131,10 @@
     <pre class="examples"><div class='input'><span class='fu'>format_datetime</span>(<span class='st'>"yyyy/mm/dd"</span>)</div><div class='output co'>#&gt; [1] "%Y/%m/%d"</div><div class='input'><span class='co'>#&gt; "%Y/%m/%d"</span>
 
 <span class='co'># Very hard to remember all these characters:</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.time'>Sys.time</a></span>(), <span class='st'>"%a %b %d %Y %X"</span>)</div><div class='output co'>#&gt; [1] "Sun Jul 14 2019 21:39:41"</div><div class='input'><span class='co'>#&gt; "Fri Jul 12 2019 06:00:17"</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.time'>Sys.time</a></span>(), <span class='st'>"%a %b %d %Y %X"</span>)</div><div class='output co'>#&gt; [1] "Fri Jul 19 2019 11:06:19"</div><div class='input'><span class='co'>#&gt; "Fri Jul 12 2019 06:00:17"</span>
 
 <span class='co'># Easy to remember and write:</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.time'>Sys.time</a></span>(), <span class='fu'>format_datetime</span>(<span class='st'>"ddd mmm dd yyyy HH:MM:ss"</span>))</div><div class='output co'>#&gt; [1] "Sun Jul 14 2019 21:39:41"</div><div class='input'>#> "Fri Jul 12 2019 06:00:17"
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.time'>Sys.time</a></span>(), <span class='fu'>format_datetime</span>(<span class='st'>"ddd mmm dd yyyy HH:MM:ss"</span>))</div><div class='output co'>#&gt; [1] "Fri Jul 19 2019 11:06:19"</div><div class='input'>#> "Fri Jul 12 2019 06:00:17"
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

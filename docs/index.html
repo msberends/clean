@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7</span>
       </span>
     </div>
 
@@ -129,12 +129,16 @@
 <a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#&gt; [1] "2018-07-13"</span></a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_Date</a></span>(<span class="st">"12 06 2012"</span>)</a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt; Cleaning dates using format 'ddmmyyyy'</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt; Cleaning dates using format 'dd mm yyyy' ('%d %m %Y')</span></a>
 <a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt; [1] "2012-06-12"</span></a>
 <a class="sourceLine" id="cb5-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw"><a href="reference/clean.html">clean_Date</a></span>(<span class="dv">38071</span>)</a>
-<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt; Cleaning dates using Excel format</span></a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt; [1] "2004-03-25"</span></a></code></pre></div>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="kw"><a href="reference/clean.html">clean_Date</a></span>(<span class="st">"14 august 2010"</span>)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt; Cleaning dates using format 'dd mmmm yyyy' ('%d %B %Y')</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt; [1] "2010-08-14"</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="kw"><a href="reference/clean.html">clean_Date</a></span>(<span class="dv">38071</span>)</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co">#&gt; Cleaning dates using Excel format</span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co">#&gt; [1] "2004-03-25"</span></a></code></pre></div>
 <p>The function to transform <code>d-mmm-yyyy</code> to <code>%e-%b-%Y</code> is available as <code><a href="reference/format_datetime.html">format_datetime()</a></code> to users. This makes it possible to use it in other date functions too:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"12-13-14"</span>, <span class="dt">format =</span> <span class="kw"><a href="reference/format_datetime.html">format_datetime</a></span>(<span class="st">"mm-yy-dd"</span>))</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt; [1] "2013-12-14"</span></a></code></pre></div>
@@ -144,7 +148,7 @@
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"qwerty123456"</span>)</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co">#&gt; [1] 123456</span></a>
 <a class="sourceLine" id="cb7-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"Positive (0.143"</span>)</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"Positive (0.143)"</span>)</a>
 <a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; [1] 0.143</span></a></code></pre></div>
 </li>
 <li>
@@ -152,8 +156,12 @@
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"qwerty123456"</span>)</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt; [1] "qwerty"</span></a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"Positive (0.143"</span>)</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; [1] "Positive"</span></a></code></pre></div>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"qwerty123456"</span>, <span class="st">"[q-z]"</span>)</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="co">#&gt; [1] "qwrty"</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"Positive (0.143)"</span>)</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="co">#&gt; [1] "Positive"</span></a></code></pre></div>
+<p>Invalid regular expression used in any of the above functions will never fail to run, but instead throw a warning and will interpret the expression as a fixed value.</p>
 </li>
 </ul>
 </div>
@@ -202,6 +210,56 @@
 <a class="sourceLine" id="cb11-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="reference/clean.html">clean_factor</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"^m"</span> =<span class="st"> "Male"</span>, <span class="st">"^f"</span> =<span class="st"> "Female"</span>)) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb11-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="reference/freq.html">freq</a></span>()</a></code></pre></div>
 </div>
+</div>
+<div id="speed" class="section level2">
+<h2 class="hasAnchor">
+<a href="#speed" class="anchor"></a>Speed</h2>
+<p>The cleaning functions are tremendously fast, because they rely on R’s own internal C++ libraries:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co"># Create a vector with 500,000 items</span></a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">n &lt;-<span class="st"> </span><span class="dv">500000</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">values &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"yes"</span>, <span class="st">"no"</span>), n, <span class="dt">replace =</span> <span class="ot">TRUE</span>), </a>
+<a class="sourceLine" id="cb12-4" data-line-number="4">                 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(n, <span class="dv">0</span>, <span class="dv">10000</span>)))</a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="co"># data looks like:</span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7">values[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</a>
+<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="co">#&gt; [1] "no3697"  "yes1906" "yes6738"</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(values[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">#&gt; [1] FALSE  TRUE  TRUE</span></a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(values[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">#&gt; [1] "no"  "yes" "yes"</span></a>
+<a class="sourceLine" id="cb12-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb12-16" data-line-number="16"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(values[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</a>
+<a class="sourceLine" id="cb12-17" data-line-number="17"><span class="co">#&gt; [1] 3697 1906 6738</span></a>
+<a class="sourceLine" id="cb12-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb12-19" data-line-number="19"><span class="co"># benchmark the cleaning based on 10 runs and show it in seconds:</span></a>
+<a class="sourceLine" id="cb12-20" data-line-number="20">microbenchmark<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/microbenchmark/topics/microbenchmark">microbenchmark</a></span>(<span class="dt">logical =</span> <span class="kw"><a href="reference/clean.html">clean_logical</a></span>(values),</a>
+<a class="sourceLine" id="cb12-21" data-line-number="21">                               <span class="dt">character =</span> <span class="kw"><a href="reference/clean.html">clean_character</a></span>(values),</a>
+<a class="sourceLine" id="cb12-22" data-line-number="22">                               <span class="dt">numeric =</span> <span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(values),</a>
+<a class="sourceLine" id="cb12-23" data-line-number="23">                               <span class="dt">times =</span> <span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb12-24" data-line-number="24">                               <span class="dt">unit =</span> <span class="st">"s"</span>)</a>
+<a class="sourceLine" id="cb12-25" data-line-number="25"><span class="co">#&gt; Unit: seconds</span></a>
+<a class="sourceLine" id="cb12-26" data-line-number="26"><span class="co">#&gt; expr            min        lq      mean    median        uq       max neval</span></a>
+<a class="sourceLine" id="cb12-27" data-line-number="27"><span class="co">#&gt; logical   0.2846163 0.2925479 0.3076008 0.3100244 0.3189712 0.3269428    10</span></a>
+<a class="sourceLine" id="cb12-28" data-line-number="28"><span class="co">#&gt; character 0.4522698 0.4593437 0.4734631 0.4636837 0.4888959 0.5303473    10</span></a>
+<a class="sourceLine" id="cb12-29" data-line-number="29"><span class="co">#&gt; numeric   0.6428362 0.6476207 0.6618845 0.6542312 0.6778215 0.6897005    10</span></a></code></pre></div>
+<p>Cleaning 500,000 values (!) only takes 0.3-0.6 seconds on our system.</p>
+</div>
+<div id="error-catching-for-invalid-regular-expressions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#error-catching-for-invalid-regular-expressions" class="anchor"></a>Error catching for invalid regular expressions</h2>
+<p>If invalid regular expressions are used, the cleaning functions will not throw errors, but instead will show a warning and will interpret the expression as a fixed value:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; [1] "test"</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>, <span class="dt">remove =</span> <span class="st">"[a-g0-9]"</span>)</a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="co">#&gt; [1] "tst"</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>, <span class="dt">remove =</span> <span class="st">"[a-g"</span>)</a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">#&gt; [1] "0123test0123"</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">#&gt; Warning message:</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">#&gt; invalid regular expression '[a-g', reason 'Missing ']'' - now interpreting as fixed value </span></a></code></pre></div>
 </div>
 </div>
 

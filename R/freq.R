@@ -221,7 +221,7 @@ freq.default <- function(x,
   }
 
   if (is.null(quote)) {
-    if (!is.numeric(x) & all(x %like% "^[0-9]+$", na.rm = TRUE)) {
+    if (!is.numeric(x) & all(grepl("^[0-9]+$", x), na.rm = TRUE)) {
       quote <- TRUE
     } else {
       quote <- FALSE
@@ -506,7 +506,7 @@ format_header <- function(x, markdown = FALSE, decimal.mark = ".", big.mark = ",
   if (has_length == TRUE) {
     na_txt <- paste0(format(header$na_length, decimal.mark = decimal.mark, big.mark = big.mark), " = ",
                      sub("NaN", "0", percent(header$na_length / header$length, force_zero = TRUE, round = digits, decimal.mark = decimal.mark), fixed = TRUE))
-    if (!na_txt %like% "^0 =") {
+    if (!grepl("^0 =", na_txt)) {
       na_txt <- red(na_txt)
     } else {
       na_txt <- green(na_txt)

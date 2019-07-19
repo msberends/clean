@@ -158,3 +158,58 @@ unclean %>%
   clean_factor(c("^m" = "Male", "^f" = "Female")) %>% 
   freq()
 ```
+
+## Speed
+
+The cleaning functions are tremendously fast, because they rely on R's own internal C++ libraries:
+
+```r
+# Create a vector with 500,000 items
+n <- 500000
+values <- paste0(sample(c("yes", "no"), n, replace = TRUE), 
+                 as.integer(runif(n, 0, 10000)))
+
+# data looks like:
+values[1:3]
+#> [1] "no3697"  "yes1906" "yes6738"
+
+clean_logical(values[1:3])
+#> [1] FALSE  TRUE  TRUE
+
+clean_character(values[1:3])
+#> [1] "no"  "yes" "yes"
+
+clean_numeric(values[1:3])
+#> [1] 3697 1906 6738
+
+# benchmark the cleaning based on 10 runs and show it in seconds:
+microbenchmark::microbenchmark(logical = clean_logical(values),
+                               character = clean_character(values),
+                               numeric = clean_numeric(values),
+                               times = 10,
+                               unit = "s")
+#> Unit: seconds
+#> expr            min        lq      mean    median        uq       max neval
+#> logical   0.2846163 0.2925479 0.3076008 0.3100244 0.3189712 0.3269428    10
+#> character 0.4522698 0.4593437 0.4734631 0.4636837 0.4888959 0.5303473    10
+#> numeric   0.6428362 0.6476207 0.6618845 0.6542312 0.6778215 0.6897005    10
+```
+
+Cleaning 500,000 values (!) only takes 0.3-0.6 seconds on our system.
+
+## Error catching for invalid regular expressions
+
+If invalid regular expressions are used, the cleaning functions will not throw errors, but instead will show a warning and will interpret the expression as a fixed value:
+
+```r
+clean_character("0123test0123")
+#> [1] "test"
+
+clean_character("0123test0123", remove = "[a-g0-9]")
+#> [1] "tst"
+
+clean_character("0123test0123", remove = "[a-g")
+#> [1] "0123test0123"
+#> Warning message:
+#> invalid regular expression '[a-g', reason 'Missing ']'' - now interpreting as fixed value 
+```

@@ -22,9 +22,10 @@ clean_factor(x, levels = unique(x), ordered = FALSE,
 
 clean_Date(x, format = NULL, fixed = FALSE, ...)
 
-clean_numeric(x, keep = "[0-9.,]", fixed = FALSE)
+clean_numeric(x, remove = "[^0-9.,]", fixed = FALSE)
 
-clean_character(x, keep = "[a-z]", fixed = FALSE)
+clean_character(x, remove = "[^a-z]", fixed = FALSE,
+  ignore.case = TRUE)
 }
 \arguments{
 \item{x}{data to clean}
@@ -47,7 +48,9 @@ clean_character(x, keep = "[a-z]", fixed = FALSE)
 
 \item{...}{other parameters passed on to \code{\link{as.Date}}}
 
-\item{keep}{\link[base]{regex} to define the character that must be kept, see Details}
+\item{remove}{\link[base]{regex} to define the character(s) that must be removed, see Details}
+
+\item{ignore.case}{logical to indicate whether matching will be case-insensitive}
 }
 \description{
 Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s.
@@ -61,7 +64,7 @@ Info about the different functions:
   \item{\code{clean_logical}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values starting with a Y or J are considered \code{TRUE} and values starting with an N are considered \code{FALSE}. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
   \item{\code{clean_factor}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
   \item{\code{clean_Date}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
-  \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{keep} to match values that must be kept, using case-insensitive regular expressions (\link[base]{regex}). See Examples.}
+  \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric}, comma's will be read as dots. See Examples.}
 }
 
 The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instread interpret the expression as a fixed value and will throw a warning.
@@ -90,6 +93,7 @@ clean_Date("14526", "Excel") # "1939-10-08"
 # NUMERICS
 clean_numeric("qwerty123456")
 clean_numeric("Positive (0.143)")
+clean_numeric("0,143")
 
 # CHARACTERS
 clean_character("qwerty123456")

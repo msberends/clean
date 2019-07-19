@@ -25,11 +25,12 @@
 #' @param true \link[base]{regex} to interpret values as \code{TRUE}, see Details
 #' @param false \link[base]{regex} to interpret values as \code{FALSE}, see Details
 #' @param na  \link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}
-#' @param keep \link[base]{regex} to define the character that must be kept, see Details
+#' @param remove \link[base]{regex} to define the character(s) that must be removed, see Details
 #' @param levels new factor levels, may be named with regular expressions to match existing values, see Details
 #' @param droplevels logical to indicate whether non-existing factor levels should be dropped
 #' @param ordered logical to indicate whether the factor levels must be ordered
 #' @param fixed logical to indicate whether regular expressions should be turned off
+#' @param ignore.case logical to indicate whether matching will be case-insensitive
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param ... other parameters passed on to \code{\link{as.Date}}
 #' @details
@@ -41,7 +42,7 @@
 #'   \item{\code{clean_logical}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values starting with a Y or J are considered \code{TRUE} and values starting with an N are considered \code{FALSE}. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
 #'   \item{\code{clean_factor}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
 #'   \item{\code{clean_Date}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
-#'   \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{keep} to match values that must be kept, using case-insensitive regular expressions (\link[base]{regex}). See Examples.}
+#'   \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric}, comma's will be read as dots. See Examples.}
 #' }
 #' 
 #' The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instread interpret the expression as a fixed value and will throw a warning.
@@ -72,6 +73,7 @@
 #' # NUMERICS
 #' clean_numeric("qwerty123456")
 #' clean_numeric("Positive (0.143)")
+#' clean_numeric("0,143")
 #' 
 #' # CHARACTERS
 #' clean_character("qwerty123456")
@@ -292,14 +294,13 @@ clean_Date <- function(x, format = NULL, fixed = FALSE, ...) {
 
 #' @rdname clean
 #' @export
-clean_numeric <- function(x, keep = "[0-9.,]", fixed = FALSE) {
-  values <- unlist(strsplit(x, ""))
-  as.numeric(paste0(values[grepl_warn_on_error(keep, values, fixed = fixed)], collapse = ""))
+clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
+  x <- gsub(",", ".", x)
+  as.numeric(gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed))
 }
 
 #' @rdname clean
 #' @export
-clean_character <- function(x, keep = "[a-z]", fixed = FALSE) {
-  values <- unlist(strsplit(x, ""))
-  as.numeric(paste0(values[grepl_warn_on_error(keep, values, fixed = fixed)], collapse = ""))
+clean_character <- function(x, remove = "[^a-z]", fixed = FALSE, ignore.case = TRUE) {
+  as.character(gsub_warn_on_error(remove, "", x, ignore.case = ignore.case, fixed = fixed))
 }

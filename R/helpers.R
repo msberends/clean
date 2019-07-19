@@ -18,43 +18,38 @@
 # ANY WARRANTY OR LIABILITY.                                           #
 # ==================================================================== #
 
-`%like%` <- function(x, pattern) {
-  if (length(pattern) > 1) {
-    if (length(x) != length(pattern)) {
-      pattern <- pattern[1]
-      warning("only the first element of argument `pattern` used for `%like%`", 
-              call. = TRUE)
-    } else {
-      res <- vector(length = length(pattern))
-      for (i in 1:length(res)) {
-        if (is.factor(x[i])) {
-          res[i] <- as.integer(x[i]) %in% base::grep(pattern[i], 
-                                                     levels(x[i]), ignore.case = TRUE)
-        } else {
-          res[i] <- base::grepl(pattern[i], x[i], ignore.case = TRUE)
-        }
-      }
-      return(res)
-    }
-  }
-  if (is.factor(x)) {
-    as.integer(x) %in% base::grep(pattern, levels(x), ignore.case = TRUE)
-  } else {
-    base::grepl(pattern, x, ignore.case = TRUE)
-  }
-}
-
-# throws warning on error, so invalid regex will still run as fixed value
+# throws warning on error, so invalid regex will still run, but then set as fixed value
 grepl_warn_on_error <- function(pattern, x, ignore.case = FALSE, perl = FALSE,
                                 fixed = FALSE, useBytes = FALSE) {
   tryCatch(expr = base::grepl(pattern = pattern, x = x, ignore.case = ignore.case, perl = perl,
                               fixed = fixed, useBytes = useBytes),
            error = function(e) {
              warning(paste0(e$message, " - now interpreting as fixed value"), call. = FALSE)
-             return(base::grepl(pattern = pattern, x = x, ignore.case = ignore.case,
+             return(base::grepl(pattern = pattern, x = x,
                                 fixed = TRUE, useBytes = useBytes))
            })
 }
+gsub_warn_on_error <- function(pattern, replacement, x, ignore.case = FALSE, perl = FALSE,
+                               fixed = FALSE, useBytes = FALSE) {
+  tryCatch(expr = base::gsub(pattern = pattern, replacement = replacement, x = x, 
+                             ignore.case = ignore.case, perl = perl,
+                             fixed = fixed, useBytes = useBytes),
+           error = function(e) {
+             warning(paste0(e$message, " - now interpreting as fixed value"), call. = FALSE)
+             return(base::gsub(pattern = pattern, replacement = replacement, x = x, 
+                               fixed = TRUE, useBytes = useBytes))
+           })
+}
+
+# # finds start and end of a match and returns that substring
+# find_match <- function(x, keep, fixed) {
+#   lapply(x, function(val) {
+#     match_found <- regexpr(pattern = keep, text = val, fixed = fixed)
+#     matched <- list(start = as.integer(match_found),
+#                     end = -1 + as.integer(match_found) + as.integer(attributes(match_found)['match.length']))
+#     substr(val, matched$start, matched$end)
+#   })
+# }
 
 # works exactly like round(), but rounds `round(44.55, 1)` as 44.6 instead of 44.5
 # and adds decimal zeroes until `digits` is reached when force_zero = TRUE
