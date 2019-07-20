@@ -18,10 +18,12 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   clean_logical(c("Yes", "No", "Invalid", "Unknown"))
   #> [1]  TRUE FALSE    NA    NA
   
-  clean_logical(c("Oui", "Non"))  # French
+  # French
+  clean_logical(c("Oui, c'est ca", "Non, pas encore")) 
   #> [1]  TRUE FALSE
     
-  clean_logical(c("ya", "tidak")) # Indonesian
+  # Indonesian
+  clean_logical(c("ya :)", "tidak :("))
   #> [1]  TRUE FALSE
   ```
   
@@ -32,6 +34,11 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
                 true = "pos",
                 false = "neg")
   #> [1]  TRUE FALSE    NA    NA
+  
+  clean_logical(x = c("Probable", "Not probable"),
+                true = ".*",
+                false = "not")
+  #> [1]  TRUE FALSE
   ```
   
 * `clean_factor()` for setting and redefining a `factor`. You can use regular expressions to match values in your data to set new factor levels.

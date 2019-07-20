@@ -94,16 +94,23 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>, <span class="st">"Invalid"</span>, <span class="st">"Unknown"</span>))</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">#&gt; [1]  TRUE FALSE    NA    NA</span></a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Oui"</span>, <span class="st">"Non"</span>))  <span class="co"># French</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">#&gt; [1]  TRUE FALSE</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"ya"</span>, <span class="st">"tidak"</span>)) <span class="co"># Indonesian</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt; [1]  TRUE FALSE</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># French</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Oui, c'est ca"</span>, <span class="st">"Non, pas encore"</span>)) </a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">#&gt; [1]  TRUE FALSE</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># Indonesian</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"ya :)"</span>, <span class="st">"tidak :("</span>))</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co">#&gt; [1]  TRUE FALSE</span></a></code></pre></div>
 <p>If you define the <code>true</code> and <code>false</code> parameters yourself, they will be interpreted as regular expressions:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Positive"</span>, <span class="st">"Negative"</span>, <span class="st">"Unknown"</span>, <span class="st">"Unknown"</span>),</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">              <span class="dt">true =</span> <span class="st">"pos"</span>,</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">              <span class="dt">false =</span> <span class="st">"neg"</span>)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; [1]  TRUE FALSE    NA    NA</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; [1]  TRUE FALSE    NA    NA</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Probable"</span>, <span class="st">"Not probable"</span>),</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">              <span class="dt">true =</span> <span class="st">".*"</span>,</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">              <span class="dt">false =</span> <span class="st">"not"</span>)</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt; [1]  TRUE FALSE</span></a></code></pre></div>
 </li>
 <li>
 <p><code><a href="reference/clean.html">clean_factor()</a></code> for setting and redefining a <code>factor</code>. You can use regular expressions to match values in your data to set new factor levels.</p>
