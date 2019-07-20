@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.8</span>
       </span>
     </div>
 
@@ -87,14 +87,20 @@
 <div id="cleaning" class="section level3">
 <h3 class="hasAnchor">
 <a href="#cleaning" class="anchor"></a>Cleaning</h3>
-<p>Use <code><a href="reference/clean.html">clean()</a></code> to clean data. Under the bonnet (or hood, whatever you prefer) it guesses what kind of data class would best fit your input data. It calls any of these, which can also be used independently:</p>
+<p>Use <code><a href="reference/clean.html">clean()</a></code> to clean data. It guesses what kind of data class would best fit your input data. It calls any of the following functions, that can also be used independently:</p>
 <ul>
 <li>
-<p><code><a href="reference/clean.html">clean_logical()</a></code> for values <code>TRUE</code>/<code>FALSE</code>. You only define what should be <code>TRUE</code> or <code>FALSE</code> and it handles the rest for you. At default, values starting with a Y or J are considered <code>TRUE</code> and values starting with an N are considered <code>FALSE</code>.</p>
+<p><code><a href="reference/clean.html">clean_logical()</a></code> for values <code>TRUE</code>/<code>FALSE</code>. You only define what should be <code>TRUE</code> or <code>FALSE</code> and it handles the rest for you. At default, it supports “Yes” and “No” in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>, <span class="st">"Invalid"</span>, <span class="st">"Unknown"</span>))</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">#&gt; [1]  TRUE FALSE    NA    NA</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">#&gt; [1]  TRUE FALSE    NA    NA</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Oui"</span>, <span class="st">"Non"</span>))  <span class="co"># French</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">#&gt; [1]  TRUE FALSE</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"ya"</span>, <span class="st">"tidak"</span>)) <span class="co"># Indonesian</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt; [1]  TRUE FALSE</span></a></code></pre></div>
 <p>If you define the <code>true</code> and <code>false</code> parameters yourself, they will be interpreted as regular expressions:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Positive"</span>, <span class="st">"Negative"</span>, <span class="st">"Unknown"</span>, <span class="st">"Some value"</span>),</a>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_logical</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Positive"</span>, <span class="st">"Negative"</span>, <span class="st">"Unknown"</span>, <span class="st">"Unknown"</span>),</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">              <span class="dt">true =</span> <span class="st">"pos"</span>,</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">              <span class="dt">false =</span> <span class="st">"neg"</span>)</a>
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; [1]  TRUE FALSE    NA    NA</span></a></code></pre></div>

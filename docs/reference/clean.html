@@ -65,7 +65,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.8</span>
       </span>
     </div>
 
@@ -120,18 +120,18 @@
 <span class='co'># S3 method for data.frame</span>
 <span class='fu'>clean</span>(<span class='no'>x</span>)
 
-<span class='fu'>clean_logical</span>(<span class='no'>x</span>, <span class='kw'>true</span> <span class='kw'>=</span> <span class='st'>"^(Y.*|J.*|T|TRUE)$"</span>,
-  <span class='kw'>false</span> <span class='kw'>=</span> <span class='st'>"^(N.*|F|FALSE)$"</span>, <span class='kw'>na</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>clean_logical</span>(<span class='no'>x</span>, <span class='kw'>true</span> <span class='kw'>=</span> <span class='fu'><a href='regex_true_false.html'>regex_true</a></span>(), <span class='kw'>false</span> <span class='kw'>=</span> <span class='fu'><a href='regex_true_false.html'>regex_false</a></span>(),
+  <span class='kw'>na</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='fu'>clean_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/unique'>unique</a></span>(<span class='no'>x</span>), <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>droplevels</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='fu'>clean_Date</span>(<span class='no'>x</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+  <span class='kw'>droplevels</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='fu'>clean_numeric</span>(<span class='no'>x</span>, <span class='kw'>remove</span> <span class='kw'>=</span> <span class='st'>"[^0-9.,]"</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>clean_character</span>(<span class='no'>x</span>, <span class='kw'>remove</span> <span class='kw'>=</span> <span class='st'>"[^a-z]"</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'>clean_Date</span>(<span class='no'>x</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -142,11 +142,11 @@
     </tr>
     <tr>
       <th>true</th>
-      <td><p><a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a> to interpret values as <code>TRUE</code>, see Details</p></td>
+      <td><p><a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a> to interpret values as <code>TRUE</code> (which defaults to <code><a href='regex_true_false.html'>regex_true</a></code>), see Details</p></td>
     </tr>
     <tr>
       <th>false</th>
-      <td><p><a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a> to interpret values as <code>FALSE</code>, see Details</p></td>
+      <td><p><a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a> to interpret values as <code>FALSE</code> (which defaults to <code><a href='regex_true_false.html'>regex_false</a></code>), see Details</p></td>
     </tr>
     <tr>
       <th>na</th>
@@ -157,16 +157,24 @@
       <td><p>logical to indicate whether regular expressions should be turned off</p></td>
     </tr>
     <tr>
+      <th>ignore.case</th>
+      <td><p>logical to indicate whether matching should be case-insensitive</p></td>
+    </tr>
+    <tr>
       <th>levels</th>
       <td><p>new factor levels, may be named with regular expressions to match existing values, see Details</p></td>
     </tr>
     <tr>
       <th>ordered</th>
-      <td><p>logical to indicate whether the factor levels must be ordered</p></td>
+      <td><p>logical to indicate whether the factor levels should be ordered</p></td>
     </tr>
     <tr>
       <th>droplevels</th>
       <td><p>logical to indicate whether non-existing factor levels should be dropped</p></td>
+    </tr>
+    <tr>
+      <th>remove</th>
+      <td><p><a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a> to define the character(s) that should be removed, see Details</p></td>
     </tr>
     <tr>
       <th>format</th>
@@ -176,14 +184,6 @@
       <th>...</th>
       <td><p>other parameters passed on to <code><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></code></p></td>
     </tr>
-    <tr>
-      <th>remove</th>
-      <td><p><a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a> to define the character(s) that must be removed, see Details</p></td>
-    </tr>
-    <tr>
-      <th>ignore.case</th>
-      <td><p>logical to indicate whether matching will be case-insensitive</p></td>
-    </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -191,17 +191,17 @@
     <p>Using <code>clean()</code> on a vector will guess a cleaning function based on the potential number of <code>NAs</code> it returns. Using <code>clean()</code> on a data.frame to apply this guessed cleaning over all columns.</p>
 <p>Info about the different functions:</p>
 <ul>
-<li><p><code>clean_logical</code>:<br />Use parameters <code>true</code> and <code>false</code> to match values using case-insensitive regular expressions (<a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a>). Unmatched values are considered <code>NA</code>. At default, values starting with a Y or J are considered <code>TRUE</code> and values starting with an N are considered <code>FALSE</code>. Use parameter <code>na</code> to override values as <code>NA</code> that would else be matched with <code>true</code> or <code>false</code>. See Examples.</p></li>
+<li><p><code>clean_logical</code>:<br />Use parameters <code>true</code> and <code>false</code> to match values using case-insensitive regular expressions (<a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a>). Unmatched values are considered <code>NA</code>. At default, values are matched with <code><a href='regex_true_false.html'>regex_true</a></code> and <code><a href='regex_true_false.html'>regex_false</a></code>. This allows support for values "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. Use parameter <code>na</code> to override values as <code>NA</code> that would else be matched with <code>true</code> or <code>false</code>. See Examples.</p></li>
 <li><p><code>clean_factor</code>:<br />Use parameter <code>levels</code> to set new factor levels. They can be case-insensitive regular expressions to match existing values of <code>x</code>. For matching, new values for <code>levels</code> are internally temporary sorted descending on text length. See Examples.</p></li>
 <li><p><code>clean_Date</code>:<br />Use parameter <code>format</code> to define a date format, or leave it empty to have the format guessed. Use <code>"Excel"</code> to read values as Microsoft Excel dates. The <code>format</code> parameter will be evaluated with <code><a href='format_datetime.html'>format_datetime</a></code>, which means that a format like <code>"d-mmm-yy"</code> with be translated internally to <code>"%e-%b-%y"</code> for convenience. See Examples.</p></li>
 <li><p><code>clean_numeric</code> and <code>clean_character()</code>:<br />Use parameter <code>remove</code> to match values that must be removed from the input, using regular expressions (<a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a>). In case of <code>clean_numeric</code>, comma's will be read as dots. See Examples.</p></li>
 </ul>
-    <p>The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instread interpret the expression as a fixed value and will throw a warning.</p>
+    <p>The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instead interpret the expression as a fixed value and will throw a warning.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># LOGICALS</span>
-<span class='fu'>clean_logical</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Yes"</span>, <span class='st'>"No"</span>))</div><div class='output co'>#&gt; [1]  TRUE FALSE</div><div class='input'><span class='fu'>clean_logical</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Positive"</span>, <span class='st'>"Negative"</span>, <span class='st'>"Unknown"</span>, <span class='st'>"Some value"</span>),
+<span class='fu'>clean_logical</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Yes"</span>, <span class='st'>"No"</span>))   <span class='co'># English</span></div><div class='output co'>#&gt; [1]  TRUE FALSE</div><div class='input'><span class='fu'>clean_logical</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Oui"</span>, <span class='st'>"Non"</span>))  <span class='co'># French</span></div><div class='output co'>#&gt; [1]  TRUE FALSE</div><div class='input'><span class='fu'>clean_logical</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"ya"</span>, <span class='st'>"tidak"</span>)) <span class='co'># Indonesian</span></div><div class='output co'>#&gt; [1]  TRUE FALSE</div><div class='input'><span class='fu'>clean_logical</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Positive"</span>, <span class='st'>"Negative"</span>, <span class='st'>"Unknown"</span>, <span class='st'>"Some value"</span>),
               <span class='kw'>true</span> <span class='kw'>=</span> <span class='st'>"pos"</span>, <span class='kw'>false</span> <span class='kw'>=</span> <span class='st'>"neg"</span>)</div><div class='output co'>#&gt; [1]  TRUE FALSE    NA    NA</div><div class='input'>
 <span class='co'># FACTORS</span>
 <span class='no'>gender_age</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"male 0-50"</span>, <span class='st'>"male 50+"</span>, <span class='st'>"female 0-50"</span>, <span class='st'>"female 50+"</span>)
@@ -217,10 +217,10 @@
 <span class='co'># CHARACTERS</span>
 <span class='fu'>clean_character</span>(<span class='st'>"qwerty123456"</span>)</div><div class='output co'>#&gt; [1] "qwerty"</div><div class='input'><span class='fu'>clean_character</span>(<span class='st'>"Positive (0.143)"</span>)</div><div class='output co'>#&gt; [1] "Positive"</div><div class='input'>
 <span class='co'># GUESS TYPE OF CLASS</span>
-<span class='fu'>clean</span>(<span class='st'>"12 06 2012"</span>)</div><div class='output co'>#&gt; <span class='message'>Cleaning to 'Date'</span></div><div class='output co'>#&gt; <span class='message'>Cleaning dates using format 'dd mm yyyy' ('%d %m %Y')</span></div><div class='output co'>#&gt; [1] "2012-06-12"</div><div class='input'><span class='fu'>clean</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>dates</span> <span class='kw'>=</span> <span class='st'>"2013-04-02"</span>,
-                 <span class='kw'>logicals</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"yes"</span>, <span class='st'>"no"</span>)))</div><div class='output co'>#&gt; <span class='message'>[VARIABLE 'dates'] </span></div><div class='output co'>#&gt; <span class='message'>Cleaning to 'Date'</span></div><div class='output co'>#&gt; <span class='message'>Cleaning dates using format 'yyyy mm dd' ('%Y %m %d')</span></div><div class='output co'>#&gt; <span class='message'>[VARIABLE 'logicals'] </span></div><div class='output co'>#&gt; <span class='message'>Cleaning to 'logical'</span></div><div class='output co'>#&gt;        dates logicals
-#&gt; 1 2013-04-02     TRUE
-#&gt; 2 2013-04-02    FALSE</div><div class='input'>
+<span class='fu'>clean</span>(<span class='st'>"12 06 2012"</span>)</div><div class='output co'>#&gt; <span class='message'>Cleaning to 'logical'</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>clean</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>dates</span> <span class='kw'>=</span> <span class='st'>"2013-04-02"</span>,
+                 <span class='kw'>logicals</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"yes"</span>, <span class='st'>"no"</span>)))</div><div class='output co'>#&gt; <span class='message'>[VARIABLE 'dates'] </span></div><div class='output co'>#&gt; <span class='message'>Cleaning to 'logical'</span></div><div class='output co'>#&gt; <span class='message'>[VARIABLE 'logicals'] </span></div><div class='output co'>#&gt; <span class='message'>Cleaning to 'logical'</span></div><div class='output co'>#&gt;   dates logicals
+#&gt; 1  TRUE     TRUE
+#&gt; 2  TRUE    FALSE</div><div class='input'>
 </div><div class='input'><span class='co'># Clean data?</span>
 <span class='fu'><a href='freq.html'>freq</a></span>(<span class='no'>unclean</span>$<span class='no'>gender</span>)</div><div class='output co'>#&gt; 
 #&gt; 

@@ -11,23 +11,31 @@ This package provides two types of functions: **cleaning** and **checking**.
 
 ### Cleaning
 
-Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it guesses what kind of data class would best fit your input data. It calls any of these, which can also be used independently:
+Use `clean()` to clean data. It guesses what kind of data class would best fit your input data. It calls any of the following functions, that can also be used independently:
   
-* `clean_logical()` for values `TRUE`/`FALSE`. You only define what should be `TRUE` or `FALSE` and it handles the rest for you. At default, values starting with a Y or J are considered `TRUE` and values starting with an N are considered `FALSE`.
+* `clean_logical()` for values `TRUE`/`FALSE`. You only define what should be `TRUE` or `FALSE` and it handles the rest for you. At default, it supports "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu.
   ```r
   clean_logical(c("Yes", "No", "Invalid", "Unknown"))
   #> [1]  TRUE FALSE    NA    NA
+  
+  clean_logical(c("Oui", "Non"))  # French
+  #> [1]  TRUE FALSE
+    
+  clean_logical(c("ya", "tidak")) # Indonesian
+  #> [1]  TRUE FALSE
   ```
+  
   If you define the `true` and `false` parameters yourself, they will be interpreted as regular expressions:
 
   ```r
-  clean_logical(x = c("Positive", "Negative", "Unknown", "Some value"),
+  clean_logical(x = c("Positive", "Negative", "Unknown", "Unknown"),
                 true = "pos",
                 false = "neg")
   #> [1]  TRUE FALSE    NA    NA
   ```
   
 * `clean_factor()` for setting and redefining a `factor`. You can use regular expressions to match values in your data to set new factor levels.
+
   ```r
   gender_age <- c("male 0-50", "male 50+", "female 0-50", "female 50+")
   gender_age
@@ -45,6 +53,7 @@ Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it 
   #> [1] 0-50 50+  0-50 50+ 
   #> Levels: 0-50 < 50+
   ```
+  
   You can also name your levels to let them match your values. They support regular expressions too:
   
   ```r
@@ -56,6 +65,7 @@ Use `clean()` to clean data. Under the bonnet (or hood, whatever you prefer) it 
   ```
     
 * `clean_Date()` for any type of dates. This could be dates imported from Excel, or any combination of days, months and years. For convenience, the `format` parameter understands the date format language of Excel (like `d-mmm-yyyy`) and transforms it internally to the human-unreadable POSIX standard that R understands (`%e-%b-%Y`):
+
   ```r
   clean_Date("13jul18", "ddmmmyy")
   #> [1] "2018-07-13"
@@ -148,6 +158,7 @@ freq(clean_factor(unclean$gender,
 ```
 
 This could also have been done with `dplyr` syntax, since `freq()` support tidy evaluation:
+
 ```r
 unclean %>% 
   freq(clean_factor(gender,

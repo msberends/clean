@@ -22,15 +22,15 @@
 #' 
 #' Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s.
 #' @param x data to clean
-#' @param true \link[base]{regex} to interpret values as \code{TRUE}, see Details
-#' @param false \link[base]{regex} to interpret values as \code{FALSE}, see Details
+#' @param true \link[base]{regex} to interpret values as \code{TRUE} (which defaults to \code{\link{regex_true}}), see Details
+#' @param false \link[base]{regex} to interpret values as \code{FALSE} (which defaults to \code{\link{regex_false}}), see Details
 #' @param na  \link[base]{regex} to force interpret values as \code{NA}, i.e. not as \code{TRUE} or \code{FALSE}
-#' @param remove \link[base]{regex} to define the character(s) that must be removed, see Details
+#' @param remove \link[base]{regex} to define the character(s) that should be removed, see Details
 #' @param levels new factor levels, may be named with regular expressions to match existing values, see Details
 #' @param droplevels logical to indicate whether non-existing factor levels should be dropped
-#' @param ordered logical to indicate whether the factor levels must be ordered
+#' @param ordered logical to indicate whether the factor levels should be ordered
 #' @param fixed logical to indicate whether regular expressions should be turned off
-#' @param ignore.case logical to indicate whether matching will be case-insensitive
+#' @param ignore.case logical to indicate whether matching should be case-insensitive
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param ... other parameters passed on to \code{\link{as.Date}}
 #' @details
@@ -39,19 +39,21 @@
 #' Info about the different functions:
 #' 
 #' \itemize{
-#'   \item{\code{clean_logical}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values starting with a Y or J are considered \code{TRUE} and values starting with an N are considered \code{FALSE}. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
+#'   \item{\code{clean_logical}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values are matched with \code{\link{regex_true}} and \code{\link{regex_false}}. This allows support for values "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
 #'   \item{\code{clean_factor}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
 #'   \item{\code{clean_Date}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
 #'   \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric}, comma's will be read as dots. See Examples.}
 #' }
 #' 
-#' The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instread interpret the expression as a fixed value and will throw a warning.
+#' The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instead interpret the expression as a fixed value and will throw a warning.
 #' @rdname clean
 #' @export
 #' @exportMethod clean
 #' @examples 
 #' # LOGICALS
-#' clean_logical(c("Yes", "No"))
+#' clean_logical(c("Yes", "No"))   # English
+#' clean_logical(c("Oui", "Non"))  # French
+#' clean_logical(c("ya", "tidak")) # Indonesian
 #' clean_logical(x = c("Positive", "Negative", "Unknown", "Some value"),
 #'               true = "pos", false = "neg")
 #' 
@@ -126,19 +128,24 @@ clean.data.frame <- function(x) {
 
 #' @rdname clean
 #' @export
-clean_logical <- function(x, true = "^(Y.*|J.*|T|TRUE)$", false = "^(N.*|F|FALSE)$", na = NULL, fixed = FALSE) {
+clean_logical <- function(x, true = regex_true(), false = regex_false(), na = NULL, fixed = FALSE, ignore.case = TRUE) {
+  # transform x to Latin characters: "sí" will be "si"
+  if (identical(true, regex_true()) & identical(false, regex_false())) {
+    x <- iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT")
+    x <- gsub("[^a-z,./ 0-9]+", "", x, ignore.case = ignore.case)
+  }
   conv <- rep(NA, length(x))
-  conv[x %in% c(-1, 1) | grepl_warn_on_error(true, x, ignore.case = TRUE, fixed = fixed)] <- TRUE
-  conv[x == 0 | grepl_warn_on_error(false, x, ignore.case = TRUE, fixed = fixed)] <- FALSE
+  conv[x %in% c(-1, 1) | grepl_warn_on_error(true, x, ignore.case = ignore.case, fixed = fixed)] <- TRUE
+  conv[x == 0 | grepl_warn_on_error(false, x, ignore.case = ignore.case, fixed = fixed)] <- FALSE
   if (!is.null(na)) {
-    conv[grepl_warn_on_error(na, x, ignore.case = TRUE, fixed = fixed)] <- NA
+    conv[grepl_warn_on_error(na, x, ignore.case = ignore.case, fixed = fixed)] <- NA
   }
   as.logical(conv)
 }
 
 #' @rdname clean
 #' @export
-clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FALSE, fixed = FALSE) {
+clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FALSE, fixed = FALSE, ignore.case = TRUE) {
   if (!all(levels %in% x)) {
     new_x <- rep(NA_character_, length(x))
     # sort descending on character length
@@ -149,15 +156,15 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FA
       # first try exact match
       tryCatch(new_x[is.na(new_x) & x == levels_nchar[i]] <- levels_nchar[i], error = function(e) invisible())
       # then regular expressions
-      new_x[is.na(new_x) & grepl_warn_on_error(levels_nchar[i], x, ignore.case = TRUE, fixed = fixed)] <- levels_nchar[i]
+      new_x[is.na(new_x) & grepl_warn_on_error(levels_nchar[i], x, ignore.case = ignore.case, fixed = fixed)] <- levels_nchar[i]
     }
     if (!is.null(names(levels))) {
       # override named levels
       x_set_with_name <- logical(length(x))
       for (i in 1:length(levels)) {
         if (names(levels)[i] != "") {
-          new_x[grepl_warn_on_error(names(levels)[i], x, ignore.case = TRUE, fixed = fixed) & x_set_with_name == FALSE] <- levels[i]
-          x_set_with_name[grepl_warn_on_error(names(levels)[i], x, ignore.case = TRUE, fixed = fixed)] <- TRUE
+          new_x[grepl_warn_on_error(names(levels)[i], x, ignore.case = ignore.case, fixed = fixed) & x_set_with_name == FALSE] <- levels[i]
+          x_set_with_name[grepl_warn_on_error(names(levels)[i], x, ignore.case = ignore.case, fixed = fixed)] <- TRUE
         }
       }
     }
@@ -177,7 +184,21 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FA
 
 #' @rdname clean
 #' @export
-clean_Date <- function(x, format = NULL, fixed = FALSE, ...) {
+clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
+  x <- gsub(",", ".", x)
+  as.numeric(gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed))
+}
+
+#' @rdname clean
+#' @export
+clean_character <- function(x, remove = "[^a-z]", fixed = FALSE, ignore.case = TRUE) {
+  as.character(gsub_warn_on_error(remove, "", x, ignore.case = ignore.case, fixed = fixed))
+}
+
+
+#' @rdname clean
+#' @export
+clean_Date <- function(x, format = NULL, ...) {
   if (!is.null(format)) {
     if (tolower(format) == "excel") {
       return(as.Date(as.numeric(x), origin = "1899-12-30"))
@@ -290,17 +311,4 @@ clean_Date <- function(x, format = NULL, fixed = FALSE, ...) {
   #if (all(x %in% c(25569:(as.integer(Sys.Date() - as.Date("1899-12-30"))))))
   warning("Date/time format could not be determined automatically, returning NAs", call. = FALSE)
   as.Date(rep(NA, length(x)))
-}
-
-#' @rdname clean
-#' @export
-clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
-  x <- gsub(",", ".", x)
-  as.numeric(gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed))
-}
-
-#' @rdname clean
-#' @export
-clean_character <- function(x, remove = "[^a-z]", fixed = FALSE, ignore.case = TRUE) {
-  as.character(gsub_warn_on_error(remove, "", x, ignore.case = ignore.case, fixed = fixed))
 }
