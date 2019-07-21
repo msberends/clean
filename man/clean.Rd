@@ -53,7 +53,7 @@ clean_Date(x, format = NULL, ...)
 \item{...}{other parameters passed on to \code{\link{as.Date}}}
 }
 \description{
-Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s.
+Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s. They \strong{always} return the class from the function name (e.g. \code{clean_Date()} always returns class \code{Date}).
 }
 \details{
 Using \code{clean()} on a vector will guess a cleaning function based on the potential number of \code{NAs} it returns. Using \code{clean()} on a data.frame to apply this guessed cleaning over all columns.

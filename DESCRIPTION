@@ -1,7 +1,7 @@
 Package: clean
-Title: Cleaning Data Sets
-Version: 0.0.8
-Date: 2019-07-20
+Title: Fast and Easy Data Cleaning
+Version: 0.0.9
+Date: 2019-07-21
 Authors@R: 
   person(
     given = c("Matthijs", "S."),
@@ -9,7 +9,10 @@ Authors@R:
     email = "m.s.berends@umcg.nl",
     role = c("aut", "cre"),
     comment = c(ORCID = "0000-0001-7620-1800"))
-Description: Functions to quickly check and clean columns in a data set.
+Description: Clean and check data columns in a fast and 
+  easy way. Relying on very few dependencies, it provides
+  smart guessing, but with user options to override anything
+  if needed.
 Depends: 
   R (>= 3.0.0)
 Imports:

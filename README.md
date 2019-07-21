@@ -1,20 +1,51 @@
 % clean
 
-# `clean`
-**The R package for fast and easy data set cleaning and checking, with very few dependencies.**
+# `clean`: Fast and Easy Data Cleaning
+
+[![CRAN_Badge](https://www.r-pkg.org/badges/version/clean)](https://CRAN.R-project.org/package=clean)
+
+The R package for **cleaning and checking data columns** in a fast and easy way. Relying on very few dependencies, it provides **smart guessing**, but with user options to override anything if needed.
+
+----
+
+Contents:
+
+* [Why this package](#why-this-package)
+* [How it works](#how-it-works)
+  * [Cleaning](#cleaning)
+  * [Checking](#checking)
+* [Speed](#speed)
+* [Invalid regular expressions](#invalid-regular-expressions)
+
+----
 
 ## Why this package
-As a data scientist, I'm often served with data that is not clean, not tidy and consquently not ready for analysis at all. For tidying data, there's of course the `tidyverse` (https://www.tidyverse.org), which lets you manipulate data in any way you can think of. But for *cleaning*, I think our community was still lacking a neat solution that makes data cleaning fast and easy with functions that kind of 'think on their own' to do that. Cleaning with smart guessing, but with user options to override anything if needed.
+As a data scientist, I'm often served with data that is not clean, not tidy and consquently not ready for analysis at all. For tidying data, there's of course the `tidyverse` (https://www.tidyverse.org), which lets you manipulate data in any way you can think of. But for *cleaning*, I think our community was still lacking a neat solution that makes data cleaning fast and easy with functions that kind of 'think on their own' to do that.
+
+If the CRAN button at the top of this page is green, install the package with:
+
+```r
+install.packages("clean")
+```
+
+Otherwise, or if you are looking for the latest stable development version, install the package with:
+```r
+install.packages("devtools") # if you haven't already
+devtools::install_github("msberends/clean")
+```
 
 ## How it works
+
 This package provides two types of functions: **cleaning** and **checking**.
 
 ### Cleaning
 
-Use `clean()` to clean data. It guesses what kind of data class would best fit your input data. It calls any of the following functions, that can also be used independently:
+Use `clean()` to clean data. It guesses what kind of data class would best fit your input data. It calls any of the following functions, that can also be used independently. They **always** return the class from the function name (e.g. `clean_Date()` always returns class `Date`).
   
-* `clean_logical()` for values `TRUE`/`FALSE`. You only define what should be `TRUE` or `FALSE` and it handles the rest for you. At default, it supports "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu.
+* `clean_logical()` for values `TRUE`/`FALSE`. You only define what should be `TRUE` or `FALSE` and it handles the rest for you. At default, it supports "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. This covers at least two-third of the world population (Ulrich Ammon *et al.*, University of Düsseldorf).
+
   ```r
+  # English
   clean_logical(c("Yes", "No", "Invalid", "Unknown"))
   #> [1]  TRUE FALSE    NA    NA
   
@@ -97,7 +128,7 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] "2013-12-14"
   ```
   
-* `clean_numeric()` to keep numbers from cluttered input text:
+* `clean_numeric()` to remove all non-numbers from cluttered input text:
   
   ```r
   clean_numeric("qwerty123456")
@@ -107,24 +138,29 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] 0.143
   ```
   
-* `clean_character()` to keep characters from cluttered input text:
+* `clean_character()` to remove all obvious non-characters from cluttered input text:
   
   ```r
   clean_character("qwerty123456")
   #> [1] "qwerty"
   
-  clean_character("qwerty123456", "[q-z]")
-  #> [1] "qwrty"
-  
   clean_character("Positive (0.143)")
   #> [1] "Positive"
   ```
   
-  Invalid regular expression used in any of the above functions will never fail to run, but instead throw a warning and will interpret the expression as a fixed value.
+  You can define yourself what should be removed, with regular expressions:
+  
+  ```r
+  clean_character(x = c("Model: Pro A1",
+                        "Model specified: Pro A1",
+                        "Pro A1"), 
+                  remove = "^.*: ")
+  #> [1] "Pro A1" "Pro A1" "Pro A1"
+  ```
   
 ### Checking
 
-Use `freq()` to create comprehensive frequency tables to check your data. The function supports a lot of different classes (types of data) and is even extendible by other packages.
+The easiest and most comprehensive way to check the data of a column/variable is to create frequency tables. Use `freq()` to do this. It supports a lot of different classes (types of data) and is even extendible by other packages.
 
 ```r
 freq(unclean$gender)
@@ -164,7 +200,7 @@ freq(clean_factor(unclean$gender,
 #> 2    Female      223     44.6%          500         100.0%
 ```
 
-This could also have been done with `dplyr` syntax, since `freq()` support tidy evaluation:
+This could also have been done with `dplyr` syntax, since `freq()` supports tidy evaluation:
 
 ```r
 unclean %>% 
@@ -215,7 +251,7 @@ microbenchmark::microbenchmark(logical = clean_logical(values),
 
 Cleaning 500,000 values (!) only takes 0.3-0.6 seconds on our system.
 
-## Error catching for invalid regular expressions
+## Invalid regular expressions
 
 If invalid regular expressions are used, the cleaning functions will not throw errors, but instead will show a warning and will interpret the expression as a fixed value:
 

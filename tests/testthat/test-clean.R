@@ -1,6 +1,6 @@
 # ==================================================================== #
 # TITLE                                                                #
-# Functions to Clean Data Sets                                         #
+# Fast and Easy Data Cleaning                                          #
 #                                                                      #
 # SOURCE                                                               #
 # https://github.com/msberends/clean                                   #
@@ -13,9 +13,8 @@
 # GNU General Public License version 2.0 (GNU GPL-2), as published by  #
 # the Free Software Foundation.                                        #
 #                                                                      #
-# This R package was created for academic research and was publicly    #
-# released in the hope that it will be useful, but it comes WITHOUT    #
-# ANY WARRANTY OR LIABILITY.                                           #
+# This R package was publicly released in the hope that it will be     #
+# useful, but it comes WITHOUT ANY WARRANTY OR LIABILITY.              #
 # ==================================================================== #
 
 context("clean.R")

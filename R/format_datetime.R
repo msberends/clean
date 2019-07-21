@@ -1,6 +1,6 @@
 # ==================================================================== #
 # TITLE                                                                #
-# Functions to Clean Raw Data                                          #
+# Fast and Easy Data Cleaning                                          #
 #                                                                      #
 # SOURCE                                                               #
 # https://github.com/msberends/clean                                   #
@@ -13,9 +13,8 @@
 # GNU General Public License version 2.0 (GNU GPL-2), as published by  #
 # the Free Software Foundation.                                        #
 #                                                                      #
-# This R package was created for academic research and was publicly    #
-# released in the hope that it will be useful, but it comes WITHOUT    #
-# ANY WARRANTY OR LIABILITY.                                           #
+# This R package was publicly released in the hope that it will be     #
+# useful, but it comes WITHOUT ANY WARRANTY OR LIABILITY.              #
 # ==================================================================== #
 
 #' Readable date format to POSIX
@@ -25,15 +24,12 @@
 #' @export
 #' @examples 
 #' format_datetime("yyyy/mm/dd")
-#' #> "%Y/%m/%d"
 #' 
 #' # Very hard to remember all these characters:
 #' format(Sys.time(), "%a %b %d %Y %X")
-#' #> "Fri Jul 12 2019 06:00:17"
 #' 
-#' # Easy to remember and write:
+#' # Easy to remember and write the same as above:
 #' format(Sys.time(), format_datetime("ddd mmm dd yyyy HH:MM:ss"))
-#' #> "Fri Jul 12 2019 06:00:17"
 format_datetime <- function(format) {
   if (!any(grepl('%', format, fixed = TRUE))) {
     # first months and minutes, after that everything is caseINsensitive

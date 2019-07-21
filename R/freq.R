@@ -1,6 +1,6 @@
 # ==================================================================== #
 # TITLE                                                                #
-# Functions to Clean Data Sets                                         #
+# Fast and Easy Data Cleaning                                          #
 #                                                                      #
 # SOURCE                                                               #
 # https://github.com/msberends/clean                                   #
@@ -13,9 +13,8 @@
 # GNU General Public License version 2.0 (GNU GPL-2), as published by  #
 # the Free Software Foundation.                                        #
 #                                                                      #
-# This R package was created for academic research and was publicly    #
-# released in the hope that it will be useful, but it comes WITHOUT    #
-# ANY WARRANTY OR LIABILITY.                                           #
+# This R package was publicly released in the hope that it will be     #
+# useful, but it comes WITHOUT ANY WARRANTY OR LIABILITY.              #
 # ==================================================================== #
 
 #' Frequency table
@@ -35,7 +34,7 @@
 #' @param title text to show above frequency table, at default to tries to coerce from the variables passed to \code{x}
 #' @param na a character string that should be used to show empty (\code{NA}) values (only useful when \code{na.rm = FALSE})
 #' @param droplevels a logical value indicating whether in factors empty levels should be dropped
-#' @param format a character to define the printing format
+#' @param format a character to define the printing format (it supports \code{\link{format_datetime}} to transform e.g. \code{"d mmmm yyyy"} to \code{"\%e \%B \%Y"})
 #' @param sep a character string to separate the terms when selecting multiple columns
 #' @inheritParams base::format
 #' @param f a frequency table
@@ -74,6 +73,10 @@
 #'   freq.default(x = x, ...,
 #'                .add_header = list(units = attributes(x)$units))
 #' }
+#' }
+#' After this, you might want to add this to your \code{DESCRIPTION} file:
+#' \preformatted{
+#' Enhances: clean
 #' }
 #' @keywords summary summarise frequency freq
 #' @rdname freq

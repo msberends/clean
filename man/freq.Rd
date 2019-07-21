@@ -83,7 +83,7 @@ header(f, property = NULL)
 
 \item{droplevels}{a logical value indicating whether in factors empty levels should be dropped}
 
-\item{format}{a character to define the printing format}
+\item{format}{a character to define the printing format (it supports \code{\link{format_datetime}} to transform e.g. \code{"d mmmm yyyy"} to \code{"\%e \%B \%Y"})}
 
 \item{f}{a frequency table}
 
@@ -134,6 +134,10 @@ freq.difftime <- function(x, ...) {
   freq.default(x = x, ...,
                .add_header = list(units = attributes(x)$units))
 }
+}
+After this, you might want to add this to your \code{DESCRIPTION} file:
+\preformatted{
+Enhances: clean
 }
 }
 

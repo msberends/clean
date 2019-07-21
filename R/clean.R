@@ -1,6 +1,6 @@
 # ==================================================================== #
 # TITLE                                                                #
-# Functions to Clean Data Sets                                         #
+# Fast and Easy Data Cleaning                                          #
 #                                                                      #
 # SOURCE                                                               #
 # https://github.com/msberends/clean                                   #
@@ -13,14 +13,13 @@
 # GNU General Public License version 2.0 (GNU GPL-2), as published by  #
 # the Free Software Foundation.                                        #
 #                                                                      #
-# This R package was created for academic research and was publicly    #
-# released in the hope that it will be useful, but it comes WITHOUT    #
-# ANY WARRANTY OR LIABILITY.                                           #
+# This R package was publicly released in the hope that it will be     #
+# useful, but it comes WITHOUT ANY WARRANTY OR LIABILITY.              #
 # ==================================================================== #
 
 #' Clean column data to a class
 #' 
-#' Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s.
+#' Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s. They \strong{always} return the class from the function name (e.g. \code{clean_Date()} always returns class \code{Date}).
 #' @param x data to clean
 #' @param true \link[base]{regex} to interpret values as \code{TRUE} (which defaults to \code{\link{regex_true}}), see Details
 #' @param false \link[base]{regex} to interpret values as \code{FALSE} (which defaults to \code{\link{regex_false}}), see Details
@@ -307,8 +306,6 @@ clean_Date <- function(x, format = NULL, ...) {
   if (!is.null(new_format)) {
     return(as.Date(as.character(x), format = new_format))
   }
-  # last resort: try Excel
-  #if (all(x %in% c(25569:(as.integer(Sys.Date() - as.Date("1899-12-30"))))))
   warning("Date/time format could not be determined automatically, returning NAs", call. = FALSE)
   as.Date(rep(NA, length(x)))
 }

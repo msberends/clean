@@ -14,13 +14,10 @@ Use this function to transform generic date/time info writing (dd-mm-yyyy) to PO
 }
 \examples{
 format_datetime("yyyy/mm/dd")
-#> "\%Y/\%m/\%d"
 
 # Very hard to remember all these characters:
 format(Sys.time(), "\%a \%b \%d \%Y \%X")
-#> "Fri Jul 12 2019 06:00:17"
 
-# Easy to remember and write:
+# Easy to remember and write the same as above:
 format(Sys.time(), format_datetime("ddd mmm dd yyyy HH:MM:ss"))
-#> "Fri Jul 12 2019 06:00:17"
 }
