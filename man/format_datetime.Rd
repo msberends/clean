@@ -9,6 +9,9 @@ format_datetime(format)
 \arguments{
 \item{format}{the format that needs to be transformed}
 }
+\value{
+A \code{character} string (a POSIX standardised format)
+}
 \description{
 Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (\%d-\%m-\%Y), see Examples.
 }

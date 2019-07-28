@@ -22,6 +22,7 @@
 #' Use this function to transform generic date/time info writing (dd-mm-yyyy) to POSIX standardised format (\%d-\%m-\%Y), see Examples.
 #' @param format the format that needs to be transformed
 #' @export
+#' @return A \code{character} string (a POSIX standardised format)
 #' @examples 
 #' format_datetime("yyyy/mm/dd")
 #' 

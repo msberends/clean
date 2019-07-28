@@ -34,7 +34,7 @@
   
 <meta property="og:title" content="Frequency table — freq" />
 
-<meta property="og:description" content="Create a frequency table of a vector with items or a data.frame. Supports quasiquotation and markdown for reports. Easiest practice is: data %&amp;gt;% freq(var) using the tidyverse.
+<meta property="og:description" content="Create a frequency table of a vector or a data.frame. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: data %&amp;gt;% freq(var) using the tidyverse.
 top_freq can be used to get the top/bottom n items of a frequency table, with counts as names. It respects ties." />
 <meta name="twitter:card" content="summary" />
 
@@ -66,7 +66,7 @@ top_freq can be used to get the top/bottom n items of a frequency table, with co
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -112,7 +112,7 @@ top_freq can be used to get the top/bottom n items of a frequency table, with co
 
     <div class="ref-description">
     
-    <p>Create a frequency table of a vector with items or a <code>data.frame</code>. Supports quasiquotation and markdown for reports. Easiest practice is: <code>data %&gt;% freq(var)</code> using the <a href='https://magrittr.tidyverse.org/#usage'>tidyverse</a>.<br />
+    <p>Create a frequency table of a <code>vector</code> or a <code>data.frame</code>. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: <code>data %&gt;% freq(var)</code> using the <a href='https://magrittr.tidyverse.org/#usage'>tidyverse</a>.<br />
 <code>top_freq</code> can be used to get the top/bottom <em>n</em> items of a frequency table, with counts as names. It respects ties.</p>
     
     </div>
@@ -274,11 +274,12 @@ top_freq can be used to get the top/bottom n items of a frequency table, with co
     
     <p>Interested in extending the <code>freq()</code> function with your own class? Add a method like below to your package, and optionally define some header info by passing a <code><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></code> to the <code>.add_header</code> parameter, like we did with e.g. <code>freq.difftime</code>:</p><pre>
 #' @exportMethod freq.difftime
+#' @importFrom clean freq
 #' @export
 #' @noRd
 freq.difftime &lt;- function(x, ...) {
-  freq.default(x = x, ...,
-               .add_header = list(units = attributes(x)$units))
+  freq(x = x, ...,
+       .add_header = list(units = attributes(x)$units))
 }
 </pre><p>After this, you might want to add this to your <code>DESCRIPTION</code> file:</p><pre>
 Enhances: clean
@@ -293,9 +294,11 @@ Enhances: clean
 <span class='no'>df</span>$<span class='no'>variable</span> <span class='kw'>%&gt;%</span> <span class='fu'>freq</span>()
 <span class='no'>df</span>[, <span class='st'>"variable"</span>] <span class='kw'>%&gt;%</span> <span class='fu'>freq</span>()
 <span class='no'>df</span> <span class='kw'>%&gt;%</span> <span class='fu'>freq</span>(<span class='st'>"variable"</span>)
-<span class='no'>df</span> <span class='kw'>%&gt;%</span> <span class='fu'>freq</span>(<span class='no'>variable</span>)
+<span class='no'>df</span> <span class='kw'>%&gt;%</span> <span class='fu'>freq</span>(<span class='no'>variable</span>) <span class='co'># &lt;- tidyverse way</span>
 <span class='co'># }</span><div class='input'>
-<span class='co'># Clean data?</span>
+<span class='no'>clean_gender</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='clean.html'>clean_factor</a></span>(<span class='no'>unclean</span>$<span class='no'>gender</span>,
+                             <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"^m"</span> <span class='kw'>=</span> <span class='st'>"Male"</span>,
+                                        <span class='st'>"^f"</span> <span class='kw'>=</span> <span class='st'>"Female"</span>))
 <span class='fu'>freq</span>(<span class='no'>unclean</span>$<span class='no'>gender</span>)</div><div class='output co'>#&gt; 
 #&gt; 
 #&gt; **Frequency table**   
@@ -316,9 +319,7 @@ Enhances: clean
 #&gt; |4  |m      |    15|    3.0%|        497|        99.4%|
 #&gt; |5  |F      |     3|    0.6%|        500|       100.0%|
 #&gt; 
-#&gt; </div><div class='input'>
-<span class='co'># Clean it and check again:</span>
-<span class='fu'>freq</span>(<span class='fu'><a href='clean.html'>clean_factor</a></span>(<span class='no'>unclean</span>$<span class='no'>gender</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"^m"</span> <span class='kw'>=</span> <span class='st'>"Male"</span>, <span class='st'>"^f"</span> <span class='kw'>=</span> <span class='st'>"Female"</span>)))</div><div class='output co'>#&gt; 
+#&gt; </div><div class='input'><span class='fu'>freq</span>(<span class='no'>clean_gender</span>)</div><div class='output co'>#&gt; 
 #&gt; 
 #&gt; **Frequency table**   
 #&gt; 
@@ -333,18 +334,7 @@ Enhances: clean
 #&gt; |1  |Male   |   277|   55.4%|        277|        55.4%|
 #&gt; |2  |Female |   223|   44.6%|        500|       100.0%|
 #&gt; 
-#&gt; </div><div class='input'>
-# dplyr way:
-# unclean %>% 
-#   freq(clean_factor(gender,
-#                     levels = c("^m" = "Male", "^f" = "Female")))
-#
-# or:
-# unclean %>% 
-#   pull(gender) %>% 
-#   clean_factor(c("^m" = "Male", "^f" = "Female")) %>% 
-#   freq()
-</div></pre>
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

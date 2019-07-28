@@ -95,7 +95,7 @@ header(f, property = NULL)
 A \code{data.frame} (with an additional class \code{"freq"}) with five columns: \code{item}, \code{count}, \code{percent}, \code{cum_count} and \code{cum_percent}.
 }
 \description{
-Create a frequency table of a vector with items or a \code{data.frame}. Supports quasiquotation and markdown for reports. Easiest practice is: \code{data \%>\% freq(var)} using the \href{https://magrittr.tidyverse.org/#usage}{tidyverse}.\cr
+Create a frequency table of a \code{vector} or a \code{data.frame}. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: \code{data \%>\% freq(var)} using the \href{https://magrittr.tidyverse.org/#usage}{tidyverse}.\cr
 \code{top_freq} can be used to get the top/bottom \emph{n} items of a frequency table, with counts as names. It respects ties.
 }
 \details{
@@ -128,11 +128,12 @@ The function \code{top_freq} will include more than \code{n} rows if there are t
 Interested in extending the \code{freq()} function with your own class? Add a method like below to your package, and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like we did with e.g. \code{freq.difftime}:
 \preformatted{
 #' @exportMethod freq.difftime
+#' @importFrom clean freq
 #' @export
 #' @noRd
 freq.difftime <- function(x, ...) {
-  freq.default(x = x, ...,
-               .add_header = list(units = attributes(x)$units))
+  freq(x = x, ...,
+       .add_header = list(units = attributes(x)$units))
 }
 }
 After this, you might want to add this to your \code{DESCRIPTION} file:
@@ -143,31 +144,21 @@ Enhances: clean
 
 \examples{
 \dontrun{
+
 # this all gives the same results:
 freq(df$variable)
 freq(df[, "variable"])
 df$variable \%>\% freq()
 df[, "variable"] \%>\% freq()
 df \%>\% freq("variable")
-df \%>\% freq(variable)
+df \%>\% freq(variable) # <- tidyverse way
 }
 
-# Clean data?
+clean_gender <- clean_factor(unclean$gender, 
+                             levels = c("^m" = "Male", 
+                                        "^f" = "Female"))
 freq(unclean$gender)
-
-# Clean it and check again:
-freq(clean_factor(unclean$gender, levels = c("^m" = "Male", "^f" = "Female")))
-
-# dplyr way:
-# unclean \%>\% 
-#   freq(clean_factor(gender,
-#                     levels = c("^m" = "Male", "^f" = "Female")))
-#
-# or:
-# unclean \%>\% 
-#   pull(gender) \%>\% 
-#   clean_factor(c("^m" = "Male", "^f" = "Female")) \%>\% 
-#   freq()
+freq(clean_gender)
 }
 \keyword{freq}
 \keyword{frequency}

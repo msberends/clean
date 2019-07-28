@@ -52,6 +52,16 @@ clean_Date(x, format = NULL, ...)
 
 \item{...}{other parameters passed on to \code{\link{as.Date}}}
 }
+\value{
+The \code{clean} functions \strong{always} return the class from the function name:
+\itemize{
+  \item{\code{clean_logical()}: class \code{logical}}
+  \item{\code{clean_factor()}: class \code{factor}}
+  \item{\code{clean_numeric()}: class \code{numeric}}
+  \item{\code{clean_character()}: class \code{character}}
+  \item{\code{clean_Date()}: class \code{Date}}
+}
+}
 \description{
 Use any of these functions to quickly clean columns in your data set. Use \code{clean()} to pick the functions that return the least relative number of \code{NA}s. They \strong{always} return the class from the function name (e.g. \code{clean_Date()} always returns class \code{Date}).
 }
@@ -61,57 +71,41 @@ Using \code{clean()} on a vector will guess a cleaning function based on the pot
 Info about the different functions:
 
 \itemize{
-  \item{\code{clean_logical}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values are matched with \code{\link{regex_true}} and \code{\link{regex_false}}. This allows support for values "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
-  \item{\code{clean_factor}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
-  \item{\code{clean_Date}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
-  \item{\code{clean_numeric} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric}, comma's will be read as dots. See Examples.}
+  \item{\code{clean_logical()}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values are matched with \code{\link{regex_true}} and \code{\link{regex_false}}. This allows support for values "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
+  \item{\code{clean_factor()}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
+  \item{\code{clean_numeric()} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric}, comma's will be read as dots. See Examples.}
+  \item{\code{clean_Date()}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
 }
 
 The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instead interpret the expression as a fixed value and will throw a warning.
 }
 \examples{
-# LOGICALS
 clean_logical(c("Yes", "No"))   # English
 clean_logical(c("Oui", "Non"))  # French
 clean_logical(c("ya", "tidak")) # Indonesian
 clean_logical(x = c("Positive", "Negative", "Unknown", "Some value"),
               true = "pos", false = "neg")
 
-# FACTORS
 gender_age <- c("male 0-50", "male 50+", "female 0-50", "female 50+")
 clean_factor(gender_age, c("M", "F"))
 clean_factor(gender_age, c("Male", "Female"))
 clean_factor(gender_age, c("0-50", "50+"), ordered = TRUE)
 
-# DATES
 clean_Date("13jul18", "ddmmmyy")
 clean_Date("12 august 2010")
 clean_Date("12 06 2012")
-# got sent data from Excel?
-clean_Date(36526)
+clean_Date(36526) # Excel date
 clean_Date("43658")
 clean_Date("14526", "Excel") # "1939-10-08"
 
-# NUMERICS
 clean_numeric("qwerty123456")
 clean_numeric("Positive (0.143)")
 clean_numeric("0,143")
 
-# CHARACTERS
 clean_character("qwerty123456")
 clean_character("Positive (0.143)")
  
-# GUESS TYPE OF CLASS
 clean("12 06 2012")
 clean(data.frame(dates = "2013-04-02", 
                  logicals = c("yes", "no")))
-
-\donttest{                  
-# Clean data?
-freq(unclean$gender)
-
-# Clean it and check again:
-freq(clean_factor(unclean$gender, 
-                  levels = c("^m" = "Male", "^f" = "Female")))
-}
 }
