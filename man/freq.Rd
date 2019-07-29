@@ -95,7 +95,8 @@ header(f, property = NULL)
 A \code{data.frame} (with an additional class \code{"freq"}) with five columns: \code{item}, \code{count}, \code{percent}, \code{cum_count} and \code{cum_percent}.
 }
 \description{
-Create a frequency table of a \code{vector} or a \code{data.frame}. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: \code{data \%>\% freq(var)} using the \href{https://magrittr.tidyverse.org/#usage}{tidyverse}.\cr
+Create a frequency table of a \code{vector} or a \code{data.frame}. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: \code{data \%>\% freq(var)} using the \href{https://magrittr.tidyverse.org/#usage}{tidyverse}.
+
 \code{top_freq} can be used to get the top/bottom \emph{n} items of a frequency table, with counts as names. It respects ties.
 }
 \details{
@@ -125,20 +126,20 @@ The function \code{top_freq} will include more than \code{n} rows if there are t
 }
 \section{Extending the \code{freq()} function}{
 
-Interested in extending the \code{freq()} function with your own class? Add a method like below to your package, and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like we did with e.g. \code{freq.difftime}:
+Interested in extending the \code{freq()} function with your own class? Add a method like below to your package (be sure to call \code{freq.default} and not just \code{freq}), and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like below example for class \code{difftime}. This example assumes that you use the \code{roxygen2} package for package development.
 \preformatted{
 #' @exportMethod freq.difftime
-#' @importFrom clean freq
+#' @importFrom clean freq.default
 #' @export
 #' @noRd
 freq.difftime <- function(x, ...) {
-  freq(x = x, ...,
-       .add_header = list(units = attributes(x)$units))
+  freq.default(x = x, ...,
+               .add_header = list(units = attributes(x)$units))
 }
 }
-After this, you might want to add this to your \code{DESCRIPTION} file:
+Also, add this to your \code{DESCRIPTION} file:
 \preformatted{
-Enhances: clean
+Suggests: clean
 }
 }
 
