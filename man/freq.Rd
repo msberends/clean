@@ -108,11 +108,12 @@ For numeric values of any class, these additional values will all be calculated 
   \item{Standard Deviation, using \code{\link[stats]{sd}}}
   \item{Coefficient of Variation (CV), the standard deviation divided by the mean}
   \item{Mean Absolute Deviation (MAD), using \code{\link[stats]{mad}}}
-  \item{Tukey Five-Number Summaries (minimum, Q1, median, Q3, maximum), using \code{\link[stats]{fivenum}}}
-  \item{Interquartile Range (IQR) calculated as \code{Q3 - Q1} using the Tukey Five-Number Summaries, i.e. \strong{not} using the \code{\link[stats]{quantile}} function}
-  \item{Coefficient of Quartile Variation (CQV, sometimes called coefficient of dispersion), calculated as \code{(Q3 - Q1) / (Q3 + Q1)} using the Tukey Five-Number Summaries}
-  \item{Outliers (total count and unique count), using \code{\link[grDevices]{boxplot.stats}}}
+  \item{Tukey Five-Number Summaries (minimum, Q1, median, Q3, maximum), see \emph{NOTE} below}
+  \item{Interquartile Range (IQR) calculated as \code{Q3 - Q1}, see \emph{NOTE} below}
+  \item{Coefficient of Quartile Variation (CQV, sometimes called coefficient of dispersion) calculated as \code{(Q3 - Q1) / (Q3 + Q1)}, see \emph{NOTE} below}
+  \item{Outliers (total count and percentage), using \code{\link[grDevices]{boxplot.stats}}}
 }
+\emph{NOTE}: These values are calculated using the same algorithm as used by Minitab and SPSS: \emph{p[k] = E[F(x[k])]}. See Type 6 on the \code{\link[stats]{quantile}} page.
 
 For dates and times of any class, these additional values will be calculated with \code{na.rm = TRUE} and shown into the header:
 \itemize{
@@ -122,7 +123,7 @@ For dates and times of any class, these additional values will be calculated wit
 
 In factors, all factor levels that are not existing in the input data will be dropped at default.
 
-The function \code{top_freq} will include more than \code{n} rows if there are ties.
+The function \code{top_freq} will include more than \code{n} rows if there are ties. Use a negative number for \emph{n} (like \code{n = -3}) to select the bottom \emph{n} values.
 }
 \section{Extending the \code{freq()} function}{
 

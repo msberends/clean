@@ -49,11 +49,12 @@
 #'   \item{Standard Deviation, using \code{\link[stats]{sd}}}
 #'   \item{Coefficient of Variation (CV), the standard deviation divided by the mean}
 #'   \item{Mean Absolute Deviation (MAD), using \code{\link[stats]{mad}}}
-#'   \item{Tukey Five-Number Summaries (minimum, Q1, median, Q3, maximum), using \code{\link[stats]{fivenum}}}
-#'   \item{Interquartile Range (IQR) calculated as \code{Q3 - Q1} using the Tukey Five-Number Summaries, i.e. \strong{not} using the \code{\link[stats]{quantile}} function}
-#'   \item{Coefficient of Quartile Variation (CQV, sometimes called coefficient of dispersion), calculated as \code{(Q3 - Q1) / (Q3 + Q1)} using the Tukey Five-Number Summaries}
-#'   \item{Outliers (total count and unique count), using \code{\link[grDevices]{boxplot.stats}}}
+#'   \item{Tukey Five-Number Summaries (minimum, Q1, median, Q3, maximum), see \emph{NOTE} below}
+#'   \item{Interquartile Range (IQR) calculated as \code{Q3 - Q1}, see \emph{NOTE} below}
+#'   \item{Coefficient of Quartile Variation (CQV, sometimes called coefficient of dispersion) calculated as \code{(Q3 - Q1) / (Q3 + Q1)}, see \emph{NOTE} below}
+#'   \item{Outliers (total count and percentage), using \code{\link[grDevices]{boxplot.stats}}}
 #' }
+#' \emph{NOTE}: These values are calculated using the same algorithm as used by Minitab and SPSS: \emph{p[k] = E[F(x[k])]}. See Type 6 on the \code{\link[stats]{quantile}} page.
 #'
 #' For dates and times of any class, these additional values will be calculated with \code{na.rm = TRUE} and shown into the header:
 #' \itemize{
@@ -63,7 +64,7 @@
 #'
 #' In factors, all factor levels that are not existing in the input data will be dropped at default.
 #'
-#' The function \code{top_freq} will include more than \code{n} rows if there are ties.
+#' The function \code{top_freq} will include more than \code{n} rows if there are ties. Use a negative number for \emph{n} (like \code{n = -3}) to select the bottom \emph{n} values.
 #' @section Extending the \code{freq()} function:
 #' Interested in extending the \code{freq()} function with your own class? Add a method like below to your package (be sure to call \code{freq.default} and not just \code{freq}), and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like below example for class \code{difftime}. This example assumes that you use the \code{roxygen2} package for package development.
 #' \preformatted{
@@ -109,6 +110,7 @@ freq <- function(x, ...) {
 
 #' @exportMethod freq.default
 # force export this to support other packages:
+#' @export
 #' @export freq.default 
 #' @rdname freq
 freq.default <- function(x,
@@ -376,8 +378,8 @@ freq.character <- function(x, ...) {
 #' @export
 #' @rdname freq
 freq.numeric <- function(x, ..., digits = 2) {
-  Tukey_five = stats::fivenum(x, na.rm = TRUE)
-  Outliers <- grDevices::boxplot.stats(x)
+  Tukey_five = stats::quantile(x, probs = c(0.00, 0.25, 0.50, 0.75, 1.00), na.rm = TRUE, type = 6)
+  Outliers <- grDevices::boxplot.stats(x[!is.na(x)])
   
   # create a header like:
   # Mean:      71.06
@@ -551,12 +553,23 @@ top_freq <- function(f, n) {
   if (!is.numeric(n) | length(n) != 1L) {
     stop("For `top_freq`, 'n' must be a number of length 1", call. = FALSE)
   }
-  count_at_place_n <- f[n, "count"]
-  top <- f[which(f$count >= count_at_place_n), ]
-  vect <- top[, "item"]
-  names(vect) <- top[, "count"]
-  if (length(vect) > abs(n)) {
-    message("top_freq: selecting ", length(vect), " items instead of ", abs(n), ", because of ties")
+  n_bak <- n
+  if (n > 0) {
+    n <- min(n, nrow(f))
+    count_at_place_n <- f[n, "count"]
+    items <- f[which(f$count >= count_at_place_n), ]
+  } else {
+    n <- nrow(f) + n + 1
+    n <- max(n, 1)
+    count_at_place_n <- f[n, "count"]
+    items <- f[which(f$count <= count_at_place_n), ]
+  }
+  vect <- items[, "item"]
+  names(vect) <- items[, "count"]
+  if (length(vect) < abs(n_bak)) {
+    message("top_freq: selecting all ", length(vect), " items")
+  } else if (length(vect) > abs(n_bak)) {
+    message("top_freq: selecting ", length(vect), " items instead of ", abs(n_bak), ", because of ties")
   }
   vect
 }
