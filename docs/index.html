@@ -35,7 +35,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0.9000</span>
       </span>
     </div>
 
@@ -182,12 +182,18 @@
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#&gt; [1] "2013-12-14"</span></a></code></pre></div>
 </li>
 <li>
-<p><code><a href="reference/clean.html">clean_numeric()</a></code> to remove all non-numbers from cluttered input text:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"qwerty123456"</span>)</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="co">#&gt; [1] 123456</span></a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"Positive (0.143)"</span>)</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; [1] 0.143</span></a></code></pre></div>
+<p><code><a href="reference/clean.html">clean_numeric()</a></code> to remove all non-numbers from cluttered input text. It understands usage of dots and comma’s in different languages:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"$ 12,345.67"</span>,</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">                <span class="st">"€ 12.345,67"</span>,</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">                <span class="st">"12,345.67"</span>,</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">                <span class="st">"12345,67"</span>))</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; [1] 12345.67 12345.67 12345.67 12345.67</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"qwerty123456"</span>)</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt; [1] 123456</span></a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="kw"><a href="reference/clean.html">clean_numeric</a></span>(<span class="st">"Positive (0.143)"</span>)</a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt; [1] 0.143</span></a></code></pre></div>
 </li>
 <li>
 <p><code><a href="reference/clean.html">clean_character()</a></code> to remove all obvious non-characters from cluttered input text:</p>
@@ -197,10 +203,10 @@
 <a class="sourceLine" id="cb10-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"Positive (0.143)"</span>)</a>
 <a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt; [1] "Positive"</span></a></code></pre></div>
 <p>You can define yourself what should be removed, with regular expressions:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Model: Pro A1"</span>,</a>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="dt">x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Model: Pro A1          "</span>,</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2">                      <span class="st">"Model specified: Pro A1"</span>,</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">                      <span class="st">"Pro A1"</span>), </a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">                <span class="dt">remove =</span> <span class="st">"^.*: "</span>)</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">                      <span class="st">"       Pro A1          "</span>), </a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">                <span class="dt">remove =</span> <span class="st">"^.*:"</span>)</a>
 <a class="sourceLine" id="cb11-5" data-line-number="5"><span class="co">#&gt; [1] "Pro A1" "Pro A1" "Pro A1"</span></a></code></pre></div>
 </li>
 </ul>
@@ -290,16 +296,16 @@
 <h2 class="hasAnchor">
 <a href="#invalid-regular-expressions" class="anchor"></a>Invalid regular expressions</h2>
 <p>If invalid regular expressions are used, the cleaning functions will not throw errors, but instead will show a warning and will interpret the expression as a fixed value:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>)</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co">#&gt; [1] "test"</span></a>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test 0123[a-b] "</span>)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co">#&gt; [1] "test ab"</span></a>
 <a class="sourceLine" id="cb16-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>, <span class="dt">remove =</span> <span class="st">"[a-g0-9]"</span>)</a>
-<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; [1] "tst"</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test 0123[a-b] "</span>, <span class="dt">remove =</span> <span class="st">"[a-b]"</span>)</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="co">#&gt; [1] "0123test 0123[-]"</span></a>
 <a class="sourceLine" id="cb16-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>, <span class="dt">remove =</span> <span class="st">"[a-g"</span>)</a>
-<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#&gt; [1] "0123test0123"</span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="kw"><a href="reference/clean.html">clean_character</a></span>(<span class="st">"0123test0123"</span>, <span class="dt">remove =</span> <span class="st">"[a-b"</span>)</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#&gt; [1] "0123test 0123]"</span></a>
 <a class="sourceLine" id="cb16-9" data-line-number="9"><span class="co">#&gt; Warning message:</span></a>
-<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="co">#&gt; invalid regular expression '[a-g', reason 'Missing ']'' - now interpreting as fixed value </span></a></code></pre></div>
+<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="co">#&gt; invalid regular expression '[a-b', reason 'Missing ']'' - now interpreting as fixed value </span></a></code></pre></div>
 </div>
 </div>
 
@@ -309,6 +315,8 @@
     <div class="links">
 <h2>Links</h2>
 <ul class="list-unstyled">
+<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=clean">https://​cloud.r-project.org/​package=clean</a>
+</li>
 <li>Browse source code at <br><a href="https://github.com/msberends/clean">https://​github.com/​msberends/​clean</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/msberends/clean/issues">https://​github.com/​msberends/​clean/​issues</a>

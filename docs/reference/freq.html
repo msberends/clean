@@ -66,7 +66,7 @@ top_freq can be used to get the top/bottom n items of a frequency table, with co
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">clean</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0.9000</span>
       </span>
     </div>
 
@@ -112,8 +112,8 @@ top_freq can be used to get the top/bottom n items of a frequency table, with co
 
     <div class="ref-description">
     
-    <p>Create a frequency table of a <code>vector</code> or a <code>data.frame</code>. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: <code>data %&gt;% freq(var)</code> using the <a href='https://magrittr.tidyverse.org/#usage'>tidyverse</a>.<br />
-<code>top_freq</code> can be used to get the top/bottom <em>n</em> items of a frequency table, with counts as names. It respects ties.</p>
+    <p>Create a frequency table of a <code>vector</code> or a <code>data.frame</code>. It supports tidyverse's quasiquotation and markdown for reports. Easiest practice is: <code>data %&gt;% freq(var)</code> using the <a href='https://magrittr.tidyverse.org/#usage'>tidyverse</a>.</p>
+<p><code>top_freq</code> can be used to get the top/bottom <em>n</em> items of a frequency table, with counts as names. It respects ties.</p>
     
     </div>
 
@@ -257,32 +257,32 @@ top_freq can be used to get the top/bottom n items of a frequency table, with co
 <li><p>Standard Deviation, using <code><a href='https://www.rdocumentation.org/packages/stats/topics/sd'>sd</a></code></p></li>
 <li><p>Coefficient of Variation (CV), the standard deviation divided by the mean</p></li>
 <li><p>Mean Absolute Deviation (MAD), using <code><a href='https://www.rdocumentation.org/packages/stats/topics/mad'>mad</a></code></p></li>
-<li><p>Tukey Five-Number Summaries (minimum, Q1, median, Q3, maximum), using <code><a href='https://www.rdocumentation.org/packages/stats/topics/fivenum'>fivenum</a></code></p></li>
-<li><p>Interquartile Range (IQR) calculated as <code>Q3 - Q1</code> using the Tukey Five-Number Summaries, i.e. <strong>not</strong> using the <code><a href='https://www.rdocumentation.org/packages/stats/topics/quantile'>quantile</a></code> function</p></li>
-<li><p>Coefficient of Quartile Variation (CQV, sometimes called coefficient of dispersion), calculated as <code>(Q3 - Q1) / (Q3 + Q1)</code> using the Tukey Five-Number Summaries</p></li>
-<li><p>Outliers (total count and unique count), using <code><a href='https://www.rdocumentation.org/packages/grDevices/topics/boxplot.stats'>boxplot.stats</a></code></p></li>
-</ul>
-    <p>For dates and times of any class, these additional values will be calculated with <code>na.rm = TRUE</code> and shown into the header:</p><ul>
+<li><p>Tukey Five-Number Summaries (minimum, Q1, median, Q3, maximum), see <em>NOTE</em> below</p></li>
+<li><p>Interquartile Range (IQR) calculated as <code>Q3 - Q1</code>, see <em>NOTE</em> below</p></li>
+<li><p>Coefficient of Quartile Variation (CQV, sometimes called coefficient of dispersion) calculated as <code>(Q3 - Q1) / (Q3 + Q1)</code>, see <em>NOTE</em> below</p></li>
+<li><p>Outliers (total count and percentage), using <code><a href='https://www.rdocumentation.org/packages/grDevices/topics/boxplot.stats'>boxplot.stats</a></code></p></li>
+</ul><p><em>NOTE</em>: These values are calculated using the same algorithm as used by Minitab and SPSS: <em>p[k] = E[F(x[k])]</em>. See Type 6 on the <code><a href='https://www.rdocumentation.org/packages/stats/topics/quantile'>quantile</a></code> page.</p>
+<p>For dates and times of any class, these additional values will be calculated with <code>na.rm = TRUE</code> and shown into the header:</p><ul>
 <li><p>Oldest, using <code><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>min</a></code></p></li>
 <li><p>Newest, using <code><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></code>, with difference between newest and oldest</p></li>
 </ul>
     <p>In factors, all factor levels that are not existing in the input data will be dropped at default.</p>
-<p>The function <code>top_freq</code> will include more than <code>n</code> rows if there are ties.</p>
+<p>The function <code>top_freq</code> will include more than <code>n</code> rows if there are ties. Use a negative number for <em>n</em> (like <code>n = -3</code>) to select the bottom <em>n</em> values.</p>
     
     <h2 class="hasAnchor" id="extending-the-freq-function"><a class="anchor" href="#extending-the-freq-function"></a>Extending the <code>freq()</code> function</h2>
 
     
-    <p>Interested in extending the <code>freq()</code> function with your own class? Add a method like below to your package, and optionally define some header info by passing a <code><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></code> to the <code>.add_header</code> parameter, like we did with e.g. <code>freq.difftime</code>:</p><pre>
+    <p>Interested in extending the <code>freq()</code> function with your own class? Add a method like below to your package, and optionally define some header info by passing a <code><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></code> to the <code>.add_header</code> parameter, like below example for class <code>difftime</code>. This example assumes that you use the <code>roxygen2</code> package for package development.</p><pre>
 #' @exportMethod freq.difftime
-#' @importFrom clean freq
+#' @importFrom clean freq.default
 #' @export
 #' @noRd
 freq.difftime &lt;- function(x, ...) {
-  freq(x = x, ...,
-       .add_header = list(units = attributes(x)$units))
+  freq.default(x = x, ...,
+               .add_header = list(units = attributes(x)$units))
 }
-</pre><p>After this, you might want to add this to your <code>DESCRIPTION</code> file:</p><pre>
-Enhances: clean
+</pre><p>Be sure to call <code>freq.default</code> in your function and not just <code>freq</code>. Also, add <code>clean</code> to the <code>Imports:</code> field of your <code>DESCRIPTION</code> file, to make sure that it will be installed with your package, e.g.:</p><pre>
+Imports: clean
 </pre>
     
 

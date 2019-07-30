@@ -127,7 +127,7 @@ The function \code{top_freq} will include more than \code{n} rows if there are t
 }
 \section{Extending the \code{freq()} function}{
 
-Interested in extending the \code{freq()} function with your own class? Add a method like below to your package (be sure to call \code{freq.default} and not just \code{freq}), and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like below example for class \code{difftime}. This example assumes that you use the \code{roxygen2} package for package development.
+Interested in extending the \code{freq()} function with your own class? Add a method like below to your package, and optionally define some header info by passing a \code{\link{list}} to the \code{.add_header} parameter, like below example for class \code{difftime}. This example assumes that you use the \code{roxygen2} package for package development.
 \preformatted{
 #' @exportMethod freq.difftime
 #' @importFrom clean freq.default
@@ -138,9 +138,9 @@ freq.difftime <- function(x, ...) {
                .add_header = list(units = attributes(x)$units))
 }
 }
-Also, add this to your \code{DESCRIPTION} file:
+Be sure to call \code{freq.default} in your function and not just \code{freq}. Also, add \code{clean} to the \code{Imports:} field of your \code{DESCRIPTION} file, to make sure that it will be installed with your package, e.g.:
 \preformatted{
-Suggests: clean
+Imports: clean
 }
 }
 

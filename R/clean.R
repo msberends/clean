@@ -29,6 +29,7 @@
 #' @param droplevels logical to indicate whether non-existing factor levels should be dropped
 #' @param ordered logical to indicate whether the factor levels should be ordered
 #' @param fixed logical to indicate whether regular expressions should be turned off
+#' @param trim logical to indicate whether the result should be trimmed with \code{\link{trimws}}
 #' @param ignore.case logical to indicate whether matching should be case-insensitive
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param ... other parameters passed on to \code{\link{as.Date}}
@@ -40,7 +41,7 @@
 #' \itemize{
 #'   \item{\code{clean_logical()}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values are matched with \code{\link{regex_true}} and \code{\link{regex_false}}. This allows support for values "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
 #'   \item{\code{clean_factor()}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
-#'   \item{\code{clean_numeric()} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric}, comma's will be read as dots. See Examples.}
+#'   \item{\code{clean_numeric()} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric()}, comma's will be read as dots and only the last dot will be kept. Function \code{clean_character()} will keep middle spaces at default. See Examples.}
 #'   \item{\code{clean_Date()}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
 #' }
 #' 
@@ -94,11 +95,11 @@ clean <- function(x) {
 #' @noRd
 clean.default <- function(x) {
   x_withoutNA <- x[!is.na(x)]
-  fns <- c("logical", "Date", "numeric", "character")
+  fns <- c("Date", "numeric", "logical", "character")
   for (i in 1:length(fns)) {
     fn <- get(paste0("clean_", fns[i]), envir = asNamespace("clean"))
     if (all(!is.na(suppressWarnings(suppressMessages(fn(x_withoutNA)))))) {
-      message("Cleaning to '", fns[i], "'")
+      message("Cleaning to class '", fns[i], "'")
       return(fn(x_withoutNA))
     }
   }
@@ -177,13 +178,29 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FA
 #' @export
 clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
   x <- gsub(",", ".", x)
+  # remove ending dot/comma
+  x <- gsub("[,.]$", "", x)
+  # only keep last dot/comma
+  reverse <- function(x) sapply(lapply(strsplit(x, NULL), rev), paste, collapse = "")
+  x <- sub("{{dot}}", ".", 
+           gsub(".", "",
+                reverse(sub(".", "}}tod{{",
+                            reverse(x), 
+                            fixed = TRUE)),
+                fixed = TRUE), 
+           fixed = TRUE)
   as.numeric(gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed))
 }
 
 #' @rdname clean
 #' @export
-clean_character <- function(x, remove = "[^a-z]", fixed = FALSE, ignore.case = TRUE) {
-  as.character(gsub_warn_on_error(remove, "", x, ignore.case = ignore.case, fixed = fixed))
+clean_character <- function(x, remove = "[^a-z \t\r\n]", fixed = FALSE, ignore.case = TRUE, trim = TRUE) {
+  x <- as.character(gsub_warn_on_error(remove, "", x, ignore.case = ignore.case, fixed = fixed))
+  if (isTRUE(trim)) {
+    trimws(x, which = "both", whitespace = "[ \t\r\n]")
+  } else {
+    x
+  }
 }
 
 
