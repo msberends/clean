@@ -5,6 +5,7 @@
 * All numeric calculation in the header of frequency tables now use the same algorithm as used by Minitab and SPSS (see 'Type 6' on `stats::quantile()`)
 * More robust results for `clean_character()`, it also keeps in-between spaces now
 * `clean_numeric()` now supports currency
+* Fix for `freq()` where the precentage of NAs in the header was not calculated right
 
 # 1.0.0
 

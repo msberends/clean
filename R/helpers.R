@@ -82,7 +82,7 @@ percent_scales <- function (x,
                             scale = 100,
                             prefix = "", 
                             suffix = "%", 
-                            big.mark = " ",
+                            big.mark = ",",
                             decimal.mark = ".",
                             trim = TRUE, ...) {
   if (length(x) == 0) 
@@ -90,6 +90,15 @@ percent_scales <- function (x,
   x <- round(x / (accuracy / scale)) * (accuracy / scale)
   nsmall <- -floor(log10(accuracy))
   nsmall <- min(max(nsmall, 0), 20)
+  if (decimal.mark == big.mark) {
+    if (decimal.mark == ",") {
+      big.mark <- "."
+    } else if (decimal.mark == ".") {
+      big.mark <- ","
+    } else {
+      big.mark <- " "
+    }
+  }
   ret <- format(scale * x, big.mark = big.mark, decimal.mark = decimal.mark, 
                 trim = trim, nsmall = nsmall, scientific = FALSE, ...)
   ret <- paste0(prefix, ret, suffix)

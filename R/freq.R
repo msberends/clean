@@ -131,6 +131,10 @@ freq.default <- function(x,
   
   format <- list(...)$format
   
+  # set header
+  header_list <- list(class = class(x),
+                      mode = mode(x))
+  header_list$length <- length(x)
   NAs <- x[is.na(x)]
   if (na.rm == TRUE) {
     x_class <- class(x)
@@ -143,10 +147,6 @@ freq.default <- function(x,
     markdown_line <- "  " # ending with two spaces results in newline
   }
   
-  # set header
-  header_list <- list(class = class(x),
-                      mode = mode(x))
-  header_list$length <- length(x)
   if (!is.null(levels(x))) {
     header_list$levels <- levels(x)
     header_list$ordered <- is.ordered(x)
