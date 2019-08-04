@@ -164,6 +164,23 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] "Pro A1" "Pro A1" "Pro A1"
   ```
   
+* `clean_currency()` to use the new `currency` class that comes with this package. It transforms the input with `clean_numeric()` first, after which it will be transformed with `as.currency()`, guessing the currency symbol based on your system locale:
+
+  ```r
+  received <- clean_currency(c("Received 25",
+                               "Received 31.40"))
+  received
+  #> [1] "$ 25.00" "$ 31.40"
+  
+  sum(received)
+  #> [1] "$ 56.40"
+  
+  format(sum(received), 
+         currency_symbol = "€", decimal.mark = ",")
+  #> [1] "€ 56,40"
+  ```
+
+  
 ### Checking
 
 The easiest and most comprehensive way to check the data of a column/variable is to create frequency tables. Use `freq()` to do this. It supports a lot of different classes (types of data) and is even extendible by other packages.
