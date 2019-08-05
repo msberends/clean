@@ -115,7 +115,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>as.currency</span>(<span class='no'>x</span>, <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.localeconv'>Sys.localeconv</a></span>()[<span class='st'>"currency_symbol"</span>],
+    <pre class="usage"><span class='fu'>as.currency</span>(<span class='no'>x</span>, <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.localeconv'>Sys.localeconv</a></span>()[<span class='st'>"int_curr_symbol"</span>],
   <span class='no'>...</span>)
 
 <span class='fu'>is.currency</span>(<span class='no'>x</span>)
@@ -126,7 +126,7 @@
 
 <span class='co'># S3 method for currency</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='no'>x</span>,
-  <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.localeconv'>Sys.localeconv</a></span>()[<span class='st'>"currency_symbol"</span>],
+  <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/attributes'>attributes</a></span>(<span class='no'>x</span>)$<span class='no'>currency_symbol</span>,
   <span class='kw'>decimal.mark</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/options'>getOption</a></span>(<span class='st'>"OutDec"</span>), <span class='kw'>big.mark</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/ifelse'>ifelse</a></span>(<span class='no'>decimal.mark</span> <span class='kw'>==</span>
   <span class='st'>","</span>, <span class='st'>"."</span>, <span class='st'>","</span>), <span class='no'>...</span>)</pre>
     
@@ -139,7 +139,7 @@
     </tr>
     <tr>
       <th>currency_symbol</th>
-      <td><p>the currency symbol to use, which defaults to the current system locale setting</p></td>
+      <td><p>the currency symbol to use, which defaults to the current system locale setting (see <code><a href='https://www.rdocumentation.org/packages/base/topics/Sys.localeconv'>Sys.localeconv</a></code>)</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -147,24 +147,24 @@
     </tr>
     <tr>
       <th>decimal.mark</th>
-      <td><p>symbol to use as a decimal separator</p></td>
+      <td><p>symbol to use as a decimal separator, defaults to <code><a href='https://www.rdocumentation.org/packages/base/topics/options'>getOption</a>("OutDec")</code></p></td>
     </tr>
     <tr>
       <th>big.mark</th>
-      <td><p>symbol to use as a thousands separator</p></td>
+      <td><p>symbol to use as a thousands separator, defaults to a dot if <code>decimal.mark</code> is a comma, and a comma otherwise</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Printing currency will always have a currency sign followed by a space, 2 decimal places and is never written in scientific format (like 2.5e+04).</p>
+    <p>Printing currency will always have a currency symbol followed by a space, 2 decimal places and is never written in scientific format (like 2.5e+04).</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>money</span> <span class='kw'>&lt;-</span> <span class='fu'>as.currency</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.25</span>, <span class='fl'>2.5</span>, <span class='fl'>25</span>, <span class='fl'>25000</span>))
-<span class='no'>money</span></div><div class='output co'>#&gt; [1] "$ 0.25"      "$ 2.50"      "$ 25.00"     "$ 25,000.00"</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sum'>sum</a></span>(<span class='no'>money</span>)</div><div class='output co'>#&gt; [1] "$ 25,027.75"</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></span>(<span class='no'>money</span>)</div><div class='output co'>#&gt; [1] "$ 25,000.00"</div><div class='input'>
+<span class='no'>money</span></div><div class='output co'>#&gt; [1] `USD 0.25`      `USD 2.50`      `USD 25.00`     `USD 25,000.00`</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sum'>sum</a></span>(<span class='no'>money</span>)</div><div class='output co'>#&gt; [1] `USD 25,027.75`</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></span>(<span class='no'>money</span>)</div><div class='output co'>#&gt; [1] `USD 25,000.00`</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/mean'>mean</a></span>(<span class='no'>money</span>)</div><div class='output co'>#&gt; [1] `USD 6,256.94`</div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='no'>money</span>, <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='st'>"$"</span>)</div><div class='output co'>#&gt; [1] "$ 0.25"      "$ 2.50"      "$ 25.00"     "$ 25,000.00"</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='no'>money</span>, <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='st'>"€"</span>, <span class='kw'>decimal.mark</span> <span class='kw'>=</span> <span class='st'>","</span>)</div><div class='output co'>#&gt; [1] "€ 0,25"      "€ 2,50"      "€ 25,00"     "€ 25.000,00"</div><div class='input'>
-<span class='fu'>as.currency</span>(<span class='fl'>2.5e+04</span>)</div><div class='output co'>#&gt; [1] "$ 25,000.00"</div></pre>
+<span class='fu'>as.currency</span>(<span class='fl'>2.5e+04</span>)</div><div class='output co'>#&gt; [1] `USD 25,000.00`</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

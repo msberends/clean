@@ -167,13 +167,15 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
 * `clean_currency()` to use the new `currency` class that comes with this package. It transforms the input with `clean_numeric()` first, after which it will be transformed with `as.currency()`, guessing the currency symbol based on your system locale:
 
   ```r
-  received <- clean_currency(c("Received 25",
-                               "Received 31.40"))
+  clean_currency(c("Jack sent £ 25", "Bill sent £ 31.40"))
+  #> [1] `GBP 25.00` `GBP 31.40`
+  
+  received <- clean_currency(c("Received $25", "Received $31.40"))
   received
-  #> [1] "$ 25.00" "$ 31.40"
+  #> [1] `USD 25.00` `USD 31.40`
   
   sum(received)
-  #> [1] "$ 56.40"
+  #> [1] `USD 56.40`
   
   format(sum(received), 
          currency_symbol = "€", decimal.mark = ",")

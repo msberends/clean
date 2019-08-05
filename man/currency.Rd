@@ -8,7 +8,7 @@
 \alias{format.currency}
 \title{Transform to currency}
 \usage{
-as.currency(x, currency_symbol = Sys.localeconv()["currency_symbol"],
+as.currency(x, currency_symbol = Sys.localeconv()["int_curr_symbol"],
   ...)
 
 is.currency(x)
@@ -17,32 +17,33 @@ is.currency(x)
   big.mark = ifelse(decimal.mark == ",", ".", ","), ...)
 
 \method{format}{currency}(x,
-  currency_symbol = Sys.localeconv()["currency_symbol"],
+  currency_symbol = attributes(x)$currency_symbol,
   decimal.mark = getOption("OutDec"), big.mark = ifelse(decimal.mark ==
   ",", ".", ","), ...)
 }
 \arguments{
 \item{x}{input}
 
-\item{currency_symbol}{the currency symbol to use, which defaults to the current system locale setting}
+\item{currency_symbol}{the currency symbol to use, which defaults to the current system locale setting (see \code{\link{Sys.localeconv}})}
 
 \item{...}{other parameters passed on to methods}
 
-\item{decimal.mark}{symbol to use as a decimal separator}
+\item{decimal.mark}{symbol to use as a decimal separator, defaults to \code{\link{getOption}("OutDec")}}
 
-\item{big.mark}{symbol to use as a thousands separator}
+\item{big.mark}{symbol to use as a thousands separator, defaults to a dot if \code{decimal.mark} is a comma, and a comma otherwise}
 }
 \description{
 Transform input to a currency. The actual values are numeric, but will be printed as formatted currency values.
 }
 \details{
-Printing currency will always have a currency sign followed by a space, 2 decimal places and is never written in scientific format (like 2.5e+04).
+Printing currency will always have a currency symbol followed by a space, 2 decimal places and is never written in scientific format (like 2.5e+04).
 }
 \examples{
 money <- as.currency(c(0.25, 2.5, 25, 25000))
 money
 sum(money)
 max(money)
+mean(money)
 
 format(money, currency_symbol = "$")
 format(money, currency_symbol = "€", decimal.mark = ",")

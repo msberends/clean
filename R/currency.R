@@ -21,11 +21,11 @@
 #' 
 #' Transform input to a currency. The actual values are numeric, but will be printed as formatted currency values.
 #' @param x input
-#' @param currency_symbol the currency symbol to use, which defaults to the current system locale setting
-#' @param decimal.mark symbol to use as a decimal separator
-#' @param big.mark symbol to use as a thousands separator
+#' @param currency_symbol the currency symbol to use, which defaults to the current system locale setting (see \code{\link{Sys.localeconv}})
+#' @param decimal.mark symbol to use as a decimal separator, defaults to \code{\link{getOption}("OutDec")}
+#' @param big.mark symbol to use as a thousands separator, defaults to a dot if \code{decimal.mark} is a comma, and a comma otherwise 
 #' @param ... other parameters passed on to methods
-#' @details Printing currency will always have a currency sign followed by a space, 2 decimal places and is never written in scientific format (like 2.5e+04).
+#' @details Printing currency will always have a currency symbol followed by a space, 2 decimal places and is never written in scientific format (like 2.5e+04).
 #' @rdname currency
 #' @name currency
 #' @export
@@ -34,13 +34,14 @@
 #' money
 #' sum(money)
 #' max(money)
+#' mean(money)
 #' 
 #' format(money, currency_symbol = "$")
 #' format(money, currency_symbol = "€", decimal.mark = ",")
 #' 
 #' as.currency(2.5e+04)
-as.currency <- function(x, currency_symbol = Sys.localeconv()["currency_symbol"], ...) {
-  structure(.Data = as.double(x),
+as.currency <- function(x, currency_symbol = Sys.localeconv()["int_curr_symbol"], ...) {
+  structure(.Data = as.double(x, ...),
             class = c("currency", "numeric"),
             currency_symbol = unname(currency_symbol))
 }
@@ -58,29 +59,33 @@ print.currency <- function(x,
                            decimal.mark = getOption("OutDec"),
                            big.mark = ifelse(decimal.mark == ",", ".", ","),
                            ...) {
-  print(trimws(paste0(attributes(x)$currency_symbol, " ",
-                      trimws(format(as.numeric(x), 
-                                    decimal.mark = decimal.mark, 
-                                    big.mark = big.mark,
-                                    big.interval = 3L,
-                                    nsmall = 2L,
-                                    scientific = FALSE)))))
+  print(paste0("`", trimws(paste0(trimws(attributes(x)$currency_symbol), " ",
+                                  trimws(format(as.numeric(x), 
+                                                decimal.mark = decimal.mark, 
+                                                big.mark = big.mark,
+                                                big.interval = 3L,
+                                                nsmall = 2L,
+                                                digits = 2L,
+                                                scientific = FALSE)))),
+               "`"),
+        quote = FALSE)
 }
 
 #' @rdname currency
 #' @exportMethod format.currency
 #' @export
 format.currency <- function(x, 
-                            currency_symbol = Sys.localeconv()["currency_symbol"],
+                            currency_symbol = attributes(x)$currency_symbol,
                             decimal.mark = getOption("OutDec"),
                             big.mark = ifelse(decimal.mark == ",", ".", ","),
                             ...) {
-  trimws(paste0(currency_symbol, " ",
+  trimws(paste0(trimws(currency_symbol), " ",
                 trimws(format(as.numeric(x), 
                               decimal.mark = decimal.mark, 
                               big.mark = big.mark,
                               big.interval = 3L,
                               nsmall = 2L,
+                              digits = 2L,
                               scientific = FALSE))))
 }
 
@@ -88,19 +93,45 @@ format.currency <- function(x,
 #' @exportMethod sum.currency
 #' @export
 sum.currency <- function(x, ...) {
-  as.currency(sum(as.numeric(x), ...))
+  as.currency(sum(as.numeric(x), ...), currency_symbol = attributes(x)$currency_symbol)
 }
 
 #' @noRd
 #' @exportMethod min.currency
 #' @export
 min.currency <- function(x, ...) {
-  as.currency(min(as.numeric(x), ...))
+  as.currency(min(as.numeric(x), ...), currency_symbol = attributes(x)$currency_symbol)
 }
 
 #' @noRd
 #' @exportMethod max.currency
 #' @export
 max.currency <- function(x, ...) {
-  as.currency(max(as.numeric(x), ...))
+  as.currency(max(as.numeric(x), ...), currency_symbol = attributes(x)$currency_symbol)
+}
+
+#' @noRd
+#' @exportMethod mean.currency
+#' @export
+mean.currency <- function(x, ...) {
+  as.currency(mean(as.numeric(x), ...), currency_symbol = attributes(x)$currency_symbol)
+}
+
+#' @noRd
+#' @exportMethod median.currency
+#' @importFrom stats median
+#' @export
+median.currency <- function(x, ...) {
+  as.currency(median(as.numeric(x), ...), currency_symbol = attributes(x)$currency_symbol)
+}
+
+#' @noRd
+#' @exportMethod summary.currency
+#' @export
+summary.currency <- function(object, ...) {
+  c("Class" = 'currency',
+    "<NA>" = length(object[is.na(object)]),
+    "Min." = format(min(object)),
+    "Mean" = format(mean(object)),
+    "Max." = format(max(object)))
 }
