@@ -9,6 +9,7 @@
 \alias{clean_character}
 \alias{clean_currency}
 \alias{clean_Date}
+\alias{clean_POSIXct}
 \title{Clean column data to a class}
 \source{
 \href{http://www.bis.org/publ/rpfx16fx.pdf}{Triennial Central Bank Survey Foreign exchange turnover in April 2016} (PDF). Bank for International Settlements. 11 December 2016. p. 10.
@@ -32,6 +33,8 @@ clean_character(x, remove = "[^a-z \\t\\r\\n]", fixed = FALSE,
 clean_currency(x, currency_symbol = NULL, ...)
 
 clean_Date(x, format = NULL, ...)
+
+clean_POSIXct(x, remove = "[^.0-9 :/-]", fixed = FALSE, ...)
 }
 \arguments{
 \item{x}{data to clean}
@@ -58,7 +61,7 @@ clean_Date(x, format = NULL, ...)
 
 \item{currency_symbol}{the currency symbol to use, which will be guessed based on the input and otherwise defaults to the current system locale setting (see \code{\link{Sys.localeconv}})}
 
-\item{...}{other parameters passed on to \code{\link{as.Date}}}
+\item{...}{other parameters passed on to \code{\link{as.Date}} or \code{\link{as.POSIXct}}}
 
 \item{format}{a date format that will be passed on to \code{\link{format_datetime}}, see Details}
 }
@@ -71,6 +74,7 @@ The \code{clean} functions \strong{always} return the class from the function na
   \item{\code{clean_character()}: class \code{character}}
   \item{\code{clean_currency()}: class \code{currency}}
   \item{\code{clean_Date()}: class \code{Date}}
+  \item{\code{clean_POSIXct()}: classes \code{POSIXct/POSIXt}}
 }
 }
 \description{
@@ -87,6 +91,7 @@ Info about the different functions:
   \item{\code{clean_numeric()} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric()}, comma's will be read as dots and only the last dot will be kept. Function \code{clean_character()} will keep middle spaces at default. See Examples.}
   \item{\code{clean_currency()}:\cr}{This new class works like \code{clean_numeric()}, but transforms it with \code{\link{as.currency}}. The currency symbol is guessed based on the most traded currencies by value (see Source): the United States dollar, Euro, Japanese yen, Pound sterling, Swiss franc, Renminbi, Swedish krona, Mexican peso, South Korean won, Turkish lira, Russian ruble, Indian rupee and the South African rand. See Examples.}
   \item{\code{clean_Date()}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
+  \item{\code{clean_POSIXct()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). The resulting string will be coerced to a date/time element with class \code{POSIXct}, using \code{\link{as.POSIXct}()}. See Examples.}
 }
 
 The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instead interpret the expression as a fixed value and will throw a warning.
@@ -109,6 +114,8 @@ clean_Date("12 06 2012")
 clean_Date(36526) # Excel date
 clean_Date("43658")
 clean_Date("14526", "Excel") # "1939-10-08"
+
+clean_POSIXct("Created log on 2019/04/11 11:23 by user Joe")
 
 clean_numeric("qwerty123456")
 clean_numeric("Positive (0.143)")

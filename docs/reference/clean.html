@@ -133,7 +133,9 @@
 
 <span class='fu'>clean_currency</span>(<span class='no'>x</span>, <span class='kw'>currency_symbol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
 
-<span class='fu'>clean_Date</span>(<span class='no'>x</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>clean_Date</span>(<span class='no'>x</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)
+
+<span class='fu'>clean_POSIXct</span>(<span class='no'>x</span>, <span class='kw'>remove</span> <span class='kw'>=</span> <span class='st'>"[^.0-9 :/-]"</span>, <span class='kw'>fixed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -188,7 +190,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>other parameters passed on to <code><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></code></p></td>
+      <td><p>other parameters passed on to <code><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></code> or <code><a href='https://www.rdocumentation.org/packages/base/topics/as.POSIXlt'>as.POSIXct</a></code></p></td>
     </tr>
     <tr>
       <th>format</th>
@@ -209,6 +211,7 @@
 <li><p><code>clean_character()</code>: class <code>character</code></p></li>
 <li><p><code>clean_currency()</code>: class <code>currency</code></p></li>
 <li><p><code>clean_Date()</code>: class <code>Date</code></p></li>
+<li><p><code>clean_POSIXct()</code>: classes <code>POSIXct/POSIXt</code></p></li>
 </ul>
 
     
@@ -222,6 +225,7 @@
 <li><p><code>clean_numeric()</code> and <code>clean_character()</code>:<br />Use parameter <code>remove</code> to match values that must be removed from the input, using regular expressions (<a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a>). In case of <code>clean_numeric()</code>, comma's will be read as dots and only the last dot will be kept. Function <code>clean_character()</code> will keep middle spaces at default. See Examples.</p></li>
 <li><p><code>clean_currency()</code>:<br />This new class works like <code>clean_numeric()</code>, but transforms it with <code><a href='currency.html'>as.currency</a></code>. The currency symbol is guessed based on the most traded currencies by value (see Source): the United States dollar, Euro, Japanese yen, Pound sterling, Swiss franc, Renminbi, Swedish krona, Mexican peso, South Korean won, Turkish lira, Russian ruble, Indian rupee and the South African rand. See Examples.</p></li>
 <li><p><code>clean_Date()</code>:<br />Use parameter <code>format</code> to define a date format, or leave it empty to have the format guessed. Use <code>"Excel"</code> to read values as Microsoft Excel dates. The <code>format</code> parameter will be evaluated with <code><a href='format_datetime.html'>format_datetime</a></code>, which means that a format like <code>"d-mmm-yy"</code> with be translated internally to <code>"%e-%b-%y"</code> for convenience. See Examples.</p></li>
+<li><p><code>clean_POSIXct()</code>:<br />Use parameter <code>remove</code> to match values that must be removed from the input, using regular expressions (<a href='https://www.rdocumentation.org/packages/base/topics/regex'>regex</a>). The resulting string will be coerced to a date/time element with class <code>POSIXct</code>, using <code><a href='https://www.rdocumentation.org/packages/base/topics/as.POSIXlt'>as.POSIXct</a>()</code>. See Examples.</p></li>
 </ul>
     <p>The use of invalid regular expressions in any of the above functions will not return an error (like in base R), but will instead interpret the expression as a fixed value and will throw a warning.</p>
     
@@ -235,9 +239,10 @@
 #&gt; Levels: Male Female</div><div class='input'><span class='fu'>clean_factor</span>(<span class='no'>gender_age</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"0-50"</span>, <span class='st'>"50+"</span>), <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 0-50 50+  0-50 50+ 
 #&gt; Levels: 0-50 &lt; 50+</div><div class='input'>
 <span class='fu'>clean_Date</span>(<span class='st'>"13jul18"</span>, <span class='st'>"ddmmmyy"</span>)</div><div class='output co'>#&gt; [1] "2018-07-13"</div><div class='input'><span class='fu'>clean_Date</span>(<span class='st'>"12 august 2010"</span>)</div><div class='output co'>#&gt; <span class='message'>Cleaning dates using format 'dd mmmm yyyy' ('%d %B %Y')</span></div><div class='output co'>#&gt; [1] "2010-08-12"</div><div class='input'><span class='fu'>clean_Date</span>(<span class='st'>"12 06 2012"</span>)</div><div class='output co'>#&gt; <span class='message'>Cleaning dates using format 'dd mm yyyy' ('%d %m %Y')</span></div><div class='output co'>#&gt; [1] "2012-06-12"</div><div class='input'><span class='fu'>clean_Date</span>(<span class='fl'>36526</span>) <span class='co'># Excel date</span></div><div class='output co'>#&gt; <span class='message'>Cleaning dates using Excel format</span></div><div class='output co'>#&gt; [1] "2000-01-01"</div><div class='input'><span class='fu'>clean_Date</span>(<span class='st'>"43658"</span>)</div><div class='output co'>#&gt; <span class='message'>Cleaning dates using Excel format</span></div><div class='output co'>#&gt; [1] "2019-07-12"</div><div class='input'><span class='fu'>clean_Date</span>(<span class='st'>"14526"</span>, <span class='st'>"Excel"</span>) <span class='co'># "1939-10-08"</span></div><div class='output co'>#&gt; [1] "1939-10-08"</div><div class='input'>
+<span class='fu'>clean_POSIXct</span>(<span class='st'>"Created log on 2019/04/11 11:23 by user Joe"</span>)</div><div class='output co'>#&gt; [1] "2019-04-11 11:23:00 CEST"</div><div class='input'>
 <span class='fu'>clean_numeric</span>(<span class='st'>"qwerty123456"</span>)</div><div class='output co'>#&gt; [1] 123456</div><div class='input'><span class='fu'>clean_numeric</span>(<span class='st'>"Positive (0.143)"</span>)</div><div class='output co'>#&gt; [1] 0.143</div><div class='input'><span class='fu'>clean_numeric</span>(<span class='st'>"0,143"</span>)</div><div class='output co'>#&gt; [1] 0.143</div><div class='input'>
 <span class='fu'>clean_character</span>(<span class='st'>"qwerty123456"</span>)</div><div class='output co'>#&gt; [1] "qwerty"</div><div class='input'><span class='fu'>clean_character</span>(<span class='st'>"Positive (0.143)"</span>)</div><div class='output co'>#&gt; [1] "Positive"</div><div class='input'>
-<span class='fu'>clean_currency</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Received $ 25"</span>, <span class='st'>"Received $ 31.40"</span>))</div><div class='output co'>#&gt; [1] `USD 25.00` `USD 31.40`</div><div class='input'><span class='fu'>clean_currency</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Jack sent £ 25"</span>, <span class='st'>"Bill sent £ 31.40"</span>))</div><div class='output co'>#&gt; [1] `USD 25.00` `USD 31.40`</div><div class='input'>
+<span class='fu'>clean_currency</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Received $ 25"</span>, <span class='st'>"Received $ 31.40"</span>))</div><div class='output co'>#&gt; [1] `USD 25.00` `USD 31.40`</div><div class='input'><span class='fu'>clean_currency</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Jack sent £ 25"</span>, <span class='st'>"Bill sent £ 31.40"</span>))</div><div class='output co'>#&gt; [1] `GBP 25.00` `GBP 31.40`</div><div class='input'>
 <span class='fu'>clean</span>(<span class='st'>"12 06 2012"</span>)</div><div class='output co'>#&gt; <span class='message'>Cleaning to class 'Date'</span></div><div class='output co'>#&gt; <span class='message'>Cleaning dates using format 'dd mm yyyy' ('%d %m %Y')</span></div><div class='output co'>#&gt; [1] "2012-06-12"</div><div class='input'><span class='fu'>clean</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>dates</span> <span class='kw'>=</span> <span class='st'>"2013-04-02"</span>,
                  <span class='kw'>logicals</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"yes"</span>, <span class='st'>"no"</span>)))</div><div class='output co'>#&gt; <span class='message'>[VARIABLE 'dates'] </span></div><div class='output co'>#&gt; <span class='message'>Cleaning to class 'Date'</span></div><div class='output co'>#&gt; <span class='message'>Cleaning dates using format 'yyyy mm dd' ('%Y %m %d')</span></div><div class='output co'>#&gt; <span class='message'>[VARIABLE 'logicals'] </span></div><div class='output co'>#&gt; <span class='message'>Cleaning to class 'logical'</span></div><div class='output co'>#&gt;        dates logicals
 #&gt; 1 2013-04-02     TRUE

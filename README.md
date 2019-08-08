@@ -128,6 +128,21 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] "2013-12-14"
   ```
   
+* `clean_POSIXct` to remove all non-date/time characters and transform to a date/time element. It automatically adds the systems timezone, which can be changed by the user:
+
+  ```r
+  a <- clean_POSIXct("Created log on 2019/04/11 11:23 by user Joe")
+  a
+  #> "2019-04-11 11:23:00 CEST"
+  
+  b <- clean_POSIXct("Log am 2019.04.11 11:23 erstellt", tz = "US/Michigan")
+  b
+  #> "2019-04-11 11:23:00 EDT"
+  
+  difftime(a, b)
+  #> Time difference of -6 hours
+  ```
+  
 * `clean_numeric()` to remove all non-numbers from cluttered input text. It understands usage of dots and comma's in different languages:
   
   ```r
