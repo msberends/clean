@@ -52,6 +52,47 @@ is.currency <- function(x) {
   identical(class(x), c("currency", "numeric"))
 }
 
+#' @exportMethod [.currency
+#' @export
+#' @noRd
+"[.currency" <- function(x, ...) {
+  y <- NextMethod()
+  attributes(y) <- attributes(x)
+  y
+}
+#' @exportMethod [<-.currency
+#' @export
+#' @noRd
+"[<-.currency" <- function(value) {
+  y <- NextMethod()
+  attributes(y) <- attributes(value)
+  y
+}
+#' @exportMethod [[.currency
+#' @export
+#' @noRd
+"[[.currency" <- function(x, ...) {
+  y <- NextMethod()
+  attributes(y) <- attributes(x)
+  y
+}
+#' @exportMethod [[<-.currency
+#' @export
+#' @noRd
+"[[<-.currency" <- function(value) {
+  y <- NextMethod()
+  attributes(y) <- attributes(value)
+  y
+}
+#' @exportMethod c.currency
+#' @export
+#' @noRd
+c.currency <- function(x, ...) {
+  y <- NextMethod()
+  attributes(y) <- attributes(x)
+  y
+}
+
 #' @rdname currency
 #' @exportMethod print.currency
 #' @export
@@ -134,4 +175,19 @@ summary.currency <- function(object, ...) {
     "Min." = format(min(object)),
     "Mean" = format(mean(object)),
     "Max." = format(max(object)))
+}
+
+#' @importFrom pillar type_sum
+#' @export
+type_sum.currency <- function(x) {
+  paste0("crncy/", trimws(attributes(x)$currency_symbol))
+}
+
+#' @importFrom pillar pillar_shaft
+#' @export
+pillar_shaft.currency <- function(x, ...) {
+  # format without currency symbol - it will already print in the tibble header
+  out <- format(x, currency_symbol = "")
+  out[is.na(x)] <- pillar::style_na(NA)
+  pillar::new_pillar_shaft_simple(out, align = "right", min_width = 5, ...)
 }

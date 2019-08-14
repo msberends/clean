@@ -196,6 +196,18 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
          currency_symbol = "€", decimal.mark = ",")
   #> [1] "€ 56,40"
   ```
+  
+  This new class also comes with support for printing in `tibble`s, used by the [`tidyverse`](https://www.tidyverse.org):
+  
+  ```r
+  library(tibble)
+  tibble(money = clean_currency(c("Jack sent £ 25", "Bill sent £ 31.40")))
+  #> # A tibble: 2 x 1
+  #>         money
+  #>   <crncy/GBP>
+  #> 1       25.00
+  #> 2       31.40
+  ```
 
   
 ### Checking
