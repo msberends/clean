@@ -1,4 +1,4 @@
-# 1.0.0.9000
+# clean 1.1.0
 
 * Added support for currency as a new class: `as.currency()` and `clean_currency()`. They also come with 'S3 methods' for `print`, `format`, `sum`, `min` and `max`.
 * Added `clean_POSIXct()` to clean date/time objects
@@ -9,6 +9,6 @@
 * `clean_numeric()` now supports currency
 * Fix for `freq()` where the precentage of NAs in the header was not calculated right
 
-# 1.0.0
+# clean 1.0.0
 
-First release
+* First release

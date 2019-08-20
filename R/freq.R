@@ -182,56 +182,64 @@ freq.default <- function(x,
   }
   column_align <- c(x_align, "r", "r", "r", "r")
   
-  if (!is.null(format)) {
-    is.Date <- function(x) inherits(x, c("Date", "POSIXct"))
-    x <- format(x, format = ifelse(is.Date(x), format_datetime(format), format))
-    quote <- FALSE
-  }
-  
   # create the data.frame
-  df <- base::as.data.frame(base::table(x), stringsAsFactors = FALSE, )
-  colnames(df) <- c("item", "count")
-  # above is same as (but I want to keep it non-dplyr-dependent):
+  df <- base::as.data.frame(base::table(x), stringsAsFactors = FALSE)
+  if (NCOL(df) == 2) {
+    colnames(df) <- c("item", "count")
+  }
+  # above is essentially same as (but I want to keep it non-dplyr-dependent):
   # df <- tibble(item = x) %>%
   #   group_by(item) %>%
   #   summarise(count = n())
   
-  # reset original class
-  if (length(NAs) > 0 & !isTRUE(na.rm)) {
-    original <- c(sort(unique(x)), NA)
+  if (NROW(df) == 0) {
+    # return empty data.frame
+    df <- data.frame(item = character(),
+                     count = double(),
+                     percent = character(),
+                     cum_count = double(),
+                     cum_percent = double(),
+                     stringsAsFactors = FALSE)
   } else {
-    original <- sort(unique(x))
-  }
-  tryCatch(df$item <- original, error = function(e) invisible())
-
-  # sort according to setting
-  if (sort.count == TRUE) {
-    df <- df[order(-df$count),] # descending
-  } else {
-    df <- df[order(tolower(df$item)),] # ascending
-  }
-  rownames(df) <- NULL
-
-  # remove escape char
-  # see https://en.wikipedia.org/wiki/Escape_character#ASCII_escape_character
-  if ("\033" %in% x) {
-    df$item <- gsub("\033", " ", df$item, fixed = TRUE)
-  }
-
-  if (is.null(quote)) {
-    if (!is.numeric(x) & all(grepl("^[0-9]+$", x), na.rm = TRUE)) {
-      quote <- TRUE
+    
+    # reset original class
+    if (length(NAs) > 0 & !isTRUE(na.rm)) {
+      original <- c(sort(unique(x)), NA)
     } else {
-      quote <- FALSE
+      original <- sort(unique(x))
     }
+    
+    tryCatch(df$item <- original, error = function(e) invisible())
+    
+    # sort according to setting
+    if (sort.count == TRUE) {
+      df <- df[order(-df$count),] # descending
+    } else {
+      df <- df[order(tolower(df$item)),] # ascending
+    }
+    rownames(df) <- NULL
+    
+    # remove escape char
+    # see https://en.wikipedia.org/wiki/Escape_character#ASCII_escape_character
+    if ("\033" %in% x) {
+      df$item <- gsub("\033", " ", df$item, fixed = TRUE)
+    }
+    
+    if (is.null(quote)) {
+      if (!is.numeric(x) & all(grepl("^[0-9]+$", x), na.rm = TRUE)) {
+        quote <- TRUE
+      } else {
+        quote <- FALSE
+      }
+    }
+    if (quote == TRUE) {
+      df$item <- paste0('"', df$item, '"')
+    }
+    
+    df$percent <- df$count / base::sum(df$count, na.rm = TRUE)
+    df$cum_count <- base::cumsum(df$count)
+    df$cum_percent <- df$cum_count / base::sum(df$count, na.rm = TRUE)
   }
-  if (quote == TRUE) {
-    df$item <- paste0('"', df$item, '"')
-  }
-
-  df$percent <- df$count / base::sum(df$count, na.rm = TRUE)
-  df$cum_count <- base::cumsum(df$count)
-  df$cum_percent <- df$cum_count / base::sum(df$count, na.rm = TRUE)
   
   if (markdown == TRUE) {
     tbl_format <- "markdown"
@@ -245,6 +253,8 @@ freq.default <- function(x,
             class = unique(c("freq", class(df))),
             header = header_list, # header info
             opt = list(header = header, # TRUE/FALSE
+                       title = title,
+                       format = format,
                        row_names = row.names,
                        column_names = column_names,
                        column_align = column_align,
@@ -419,11 +429,11 @@ freq.integer <- function(x, ...) {
 freq.Date <- function(x, ..., format = "yyyy-mm-dd") {
   freq.default(x = x, ..., 
                format = format,
-               .add_header = list(oldest = format(min(x, na.rm = TRUE), 
-                                                  format = format_datetime(format)),
+               .add_header = list(oldest = trimws(format(min(x, na.rm = TRUE), 
+                                                         format = format_datetime(format))),
                                   newest = paste0(
-                                    format(max(x, na.rm = TRUE), 
-                                           format = format_datetime(format)),
+                                    trimws(format(max(x, na.rm = TRUE), 
+                                                  format = format_datetime(format))),
                                     " (+", as.integer(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
                                     " days)")))
 }
@@ -610,6 +620,12 @@ print.freq <- function(x,
     print(x)
     return(invisible())
   }
+  
+  if (!is.null(opt$format)) {
+    is.Date <- function(x) inherits(x, c("Date", "POSIXct"))
+    x$item <- format(x$item, format = ifelse(is.Date(x$item), format_datetime(opt$format), opt$format))
+    quote <- FALSE
+  }
 
   opt$header_txt <- header(x)
   if (is.null(opt$nmax)) {
@@ -656,7 +672,11 @@ print.freq <- function(x,
     opt$header <- header
   }
 
-  title <- "Frequency table"
+  if (!is.null(opt$title)) {
+    title <- opt$title
+  } else {
+    title <- "Frequency table"
+  }
   if (isTRUE(opt$tbl_format == "pandoc")) {
     title <- bold(title)
   } else if (isTRUE(opt$tbl_format == "markdown")) {
@@ -833,28 +853,24 @@ as.data.frame.freq <- function(x, ...) {
 #' @importFrom graphics hist
 hist.freq <- function(x, breaks = "Sturges", main = NULL, xlab = NULL, ...) {
   opt <- attr(x, "opt")
-  if (!class(x$item) %in% c("numeric", "double", "integer", "Date")) {
+  if (!any(c("numeric", "double", "integer", "Date", "POSIXct") %in% class(x$item))) {
     stop("`x` must be numeric or Date.", call. = FALSE)
+  } else if (missing(breaks)) {
+    message('Assuming "years" as specification of \'breaks\' in histogram')
+    breaks <- "years"
   }
-  if (!is.null(opt$vars)) {
-    title <- opt$vars
-  } else if (!is.null(opt$data)) {
-    title <- opt$data
+  if (!is.null(opt$title)) {
+    title <- paste(" of", opt$title)
   } else {
-    title <- "frequency table"
-  }
-  if (class(x$item) == "Date") {
-    x <- as.Date(as.vector(x), origin = "1970-01-01")
-  } else {
-    x <- as.vector(x)
+    title <- ""
   }
   if (is.null(main)) {
-    main <- paste("Histogram of", title)
+    main <- paste("Histogram", title)
   }
   if (is.null(xlab)) {
-    xlab <- title
+    xlab <- opt$title
   }
-  hist(x, main = main, xlab = xlab, breaks = breaks, ...)
+  hist(x$item, main = main, xlab = xlab, breaks = breaks, ...)
 }
 
 #' @noRd
@@ -866,12 +882,10 @@ boxplot.freq <- function(x, main = NULL, xlab = NULL, ...) {
   if (!class(x$item) %in% c("numeric", "double", "integer", "Date")) {
     stop("`x` must be numeric or Date.", call. = FALSE)
   }
-  if (!is.null(opt$vars)) {
-    title <- opt$vars
-  } else if (!is.null(opt$data)) {
-    title <- opt$data
+  if (!is.null(opt$title)) {
+    title <- opt$title
   } else {
-    title <- "frequency table"
+    title <- "Frequency table"
   }
   if (class(x$item) == "Date") {
     x <- as.Date(as.vector(x), origin = "1970-01-01")
@@ -894,8 +908,8 @@ boxplot.freq <- function(x, main = NULL, xlab = NULL, ...) {
 #' @export
 plot.freq <- function(x, y, ...) {
   opt <- attr(x, "opt")
-  if (!is.null(opt$vars)) {
-    title <- opt$vars
+  if (!is.null(opt$title)) {
+    title <- opt$title
   } else {
     title <- ""
   }
