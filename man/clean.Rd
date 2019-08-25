@@ -57,7 +57,7 @@ clean_POSIXct(x, remove = "[^.0-9 :/-]", fixed = FALSE, ...)
 
 \item{remove}{\link[base]{regex} to define the character(s) that should be removed, see Details}
 
-\item{trim}{logical to indicate whether the result should be trimmed with \code{\link{trimws}}}
+\item{trim}{logical to indicate whether the result should be trimmed with \code{\link{trimws}(x, which = "both")}}
 
 \item{currency_symbol}{the currency symbol to use, which will be guessed based on the input and otherwise defaults to the current system locale setting (see \code{\link{Sys.localeconv}})}
 

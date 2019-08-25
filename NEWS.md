@@ -1,3 +1,7 @@
+# clean 1.1.0.9000
+
+* Fix for `clean_character()` on R v3.5 and lower
+
 # clean 1.1.0
 
 * Added support for currency as a new class: `as.currency()` and `clean_currency()`. They also come with 'S3 methods' for `print`, `format`, `sum`, `min` and `max`.

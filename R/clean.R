@@ -29,7 +29,7 @@
 #' @param droplevels logical to indicate whether non-existing factor levels should be dropped
 #' @param ordered logical to indicate whether the factor levels should be ordered
 #' @param fixed logical to indicate whether regular expressions should be turned off
-#' @param trim logical to indicate whether the result should be trimmed with \code{\link{trimws}}
+#' @param trim logical to indicate whether the result should be trimmed with \code{\link{trimws}(x, which = "both")}
 #' @param ignore.case logical to indicate whether matching should be case-insensitive
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param currency_symbol the currency symbol to use, which will be guessed based on the input and otherwise defaults to the current system locale setting (see \code{\link{Sys.localeconv}})
@@ -208,7 +208,7 @@ clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
 clean_character <- function(x, remove = "[^a-z \t\r\n]", fixed = FALSE, ignore.case = TRUE, trim = TRUE) {
   x <- as.character(gsub_warn_on_error(remove, "", x, ignore.case = ignore.case, fixed = fixed))
   if (isTRUE(trim)) {
-    trimws(x, which = "both", whitespace = "[ \t\r\n]")
+    trimws(x, which = "both")
   } else {
     x
   }

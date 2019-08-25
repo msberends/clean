@@ -76,38 +76,39 @@ cqv <- function(x, na.rm = TRUE) {
   (quartiles[2] - quartiles[1]) / (quartiles[2] + quartiles[1])
 }
 
-# source: scales::number -> scales::percent
-percent_scales <- function (x,
-                            accuracy = NULL,
-                            scale = 100,
-                            prefix = "", 
-                            suffix = "%", 
-                            big.mark = ",",
-                            decimal.mark = ".",
-                            trim = TRUE, ...) {
-  if (length(x) == 0) 
-    return(character())
-  x <- round(x / (accuracy / scale)) * (accuracy / scale)
-  nsmall <- -floor(log10(accuracy))
-  nsmall <- min(max(nsmall, 0), 20)
-  if (decimal.mark == big.mark) {
-    if (decimal.mark == ",") {
-      big.mark <- "."
-    } else if (decimal.mark == ".") {
-      big.mark <- ","
-    } else {
-      big.mark <- " "
-    }
-  }
-  ret <- format(scale * x, big.mark = big.mark, decimal.mark = decimal.mark, 
-                trim = trim, nsmall = nsmall, scientific = FALSE, ...)
-  ret <- paste0(prefix, ret, suffix)
-  ret[is.infinite(x)] <- as.character(x[is.infinite(x)])
-  ret
-}
-
 # No export, no Rd
 percent <- function(x, round = 1, force_zero = TRUE, decimal.mark = getOption("OutDec"), ...) {
+  
+  # source: scales::number -> scales::percent
+  percent_scales <- function (x,
+                              accuracy = NULL,
+                              scale = 100,
+                              prefix = "", 
+                              suffix = "%", 
+                              big.mark = ",",
+                              decimal.mark = ".",
+                              trim = TRUE, ...) {
+    if (length(x) == 0) 
+      return(character())
+    x <- round(x / (accuracy / scale)) * (accuracy / scale)
+    nsmall <- -floor(log10(accuracy))
+    nsmall <- min(max(nsmall, 0), 20)
+    if (decimal.mark == big.mark) {
+      if (decimal.mark == ",") {
+        big.mark <- "."
+      } else if (decimal.mark == ".") {
+        big.mark <- ","
+      } else {
+        big.mark <- " "
+      }
+    }
+    ret <- format(scale * x, big.mark = big.mark, decimal.mark = decimal.mark, 
+                  trim = trim, nsmall = nsmall, scientific = FALSE, ...)
+    ret <- paste0(prefix, ret, suffix)
+    ret[is.infinite(x)] <- as.character(x[is.infinite(x)])
+    ret
+  }
+  
   x <- percent_scales(x = as.double(x),
                       accuracy = 1 / 10 ^ round,
                       decimal.mark = decimal.mark,
