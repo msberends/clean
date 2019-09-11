@@ -29,11 +29,11 @@
 #' @rdname regex_true_false
 #' @export
 regex_true <- function() {
-  "^(true|t|[1-9]|shi|dui|yes|haan|si|da|sim|ya|ha|naam|iva|hai|oui|ja|han-ji|evet|avunu)([^a-z]+?.*)?$"
+  "^(true|t|[1-9]|shi|dui|y(?:es)?|haan|si|da|sim|ya|ha|naam|iva|hai|oui|ja|han-ji|evet|avunu)([^a-z]+?.*)?$"
 }
 
 #' @rdname regex_true_false
 #' @export
 regex_false <- function() {
-  "^(false|f|0|pu shi|no|nahin|niet|nao|tidak|na|laa|iie|non|nein|hayir|kadhu|nee)([^a-z]+?.*)?$"
+  "^(false|f|0|pu shi|no?|nahin|niet|nao|tidak|na|laa|iie|non|nein|hayir|kadhu|nee)([^a-z]+?.*)?$"
 }
