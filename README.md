@@ -2,6 +2,8 @@
 
 # `clean`: Fast and Easy Data Cleaning
 
+**Website of this package: https://msberends.github.io/clean**
+
 [![CRAN_Badge](https://www.r-pkg.org/badges/version/clean)](https://CRAN.R-project.org/package=clean)
 
 The R package for **cleaning and checking data columns** in a fast and easy way. Relying on very few dependencies, it provides **smart guessing**, but with user options to override anything if needed.
@@ -128,7 +130,7 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] "2013-12-14"
   ```
   
-* `clean_POSIXct` to remove all non-date/time characters and transform to a date/time element. It automatically adds the systems timezone, which can be changed by the user:
+* `clean_POSIXct()` to remove all non-date/time characters and transform to a date/time element. It automatically adds the systems timezone, which can be changed by the user:
 
   ```r
   a <- clean_POSIXct("Created log on 2019/04/11 11:23 by user Joe")
@@ -169,7 +171,7 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] "Positive"
   ```
   
-  You can define yourself what should be removed, with regular expressions:
+  You can define yourself what should be removed using the `remove` argument, with regular expressions:
   
   ```r
   clean_character(x = c("Model: Pro A1          ",
@@ -177,6 +179,16 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
                         "       Pro A1          "), 
                   remove = "^.*:")
   #> [1] "Pro A1" "Pro A1" "Pro A1"
+  ```
+  
+* `clean_percentage()` to use the new `percentage` class that comes with this package. It prints numeric values as percentages:
+  
+  ```r
+  as.percentage(c(0.25, 2.5, 0.025))
+  #> [1]  25.0% 250.0%   2.5%
+  
+  clean_percentage("PCT: 0.143")
+  #> [1] 14.3%
   ```
   
 * `clean_currency()` to use the new `currency` class that comes with this package. It transforms the input with `clean_numeric()` first, after which it will be transformed with `as.currency()`, guessing the currency symbol based on your system locale:

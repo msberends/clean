@@ -43,6 +43,7 @@
 #'   \item{\code{clean_logical()}:\cr}{Use parameters \code{true} and \code{false} to match values using case-insensitive regular expressions (\link[base]{regex}). Unmatched values are considered \code{NA}. At default, values are matched with \code{\link{regex_true}} and \code{\link{regex_false}}. This allows support for values "Yes" and "No" in the following languages: Arabic, Bengali, Chinese (Mandarin), Dutch, English, French, German, Hindi, Indonesian, Japanese, Malay, Portuguese, Russian, Spanish, Telugu, Turkish and Urdu. Use parameter \code{na} to override values as \code{NA} that would else be matched with \code{true} or \code{false}. See Examples.}
 #'   \item{\code{clean_factor()}:\cr}{Use parameter \code{levels} to set new factor levels. They can be case-insensitive regular expressions to match existing values of \code{x}. For matching, new values for \code{levels} are internally temporary sorted descending on text length. See Examples.}
 #'   \item{\code{clean_numeric()} and \code{clean_character()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). In case of \code{clean_numeric()}, comma's will be read as dots and only the last dot will be kept. Function \code{clean_character()} will keep middle spaces at default. See Examples.}
+#'   \item{\code{clean_percentage()}:\cr}{This new class works like \code{clean_numeric()}, but transforms it with \code{\link{as.percentage}}, which will retain the original values, but will print them as percentages. See Examples.} 
 #'   \item{\code{clean_currency()}:\cr}{This new class works like \code{clean_numeric()}, but transforms it with \code{\link{as.currency}}. The currency symbol is guessed based on the most traded currencies by value (see Source): the United States dollar, Euro, Japanese yen, Pound sterling, Swiss franc, Renminbi, Swedish krona, Mexican peso, South Korean won, Turkish lira, Russian ruble, Indian rupee and the South African rand. See Examples.}
 #'   \item{\code{clean_Date()}:\cr}{Use parameter \code{format} to define a date format, or leave it empty to have the format guessed. Use \code{"Excel"} to read values as Microsoft Excel dates. The \code{format} parameter will be evaluated with \code{\link{format_datetime}}, which means that a format like \code{"d-mmm-yy"} with be translated internally to \code{"\%e-\%b-\%y"} for convenience. See Examples.}
 #'   \item{\code{clean_POSIXct()}:\cr}{Use parameter \code{remove} to match values that must be removed from the input, using regular expressions (\link[base]{regex}). The resulting string will be coerced to a date/time element with class \code{POSIXct}, using \code{\link{as.POSIXct}()}. See Examples.}
@@ -56,6 +57,7 @@
 #'   \item{\code{clean_factor()}: class \code{factor}}
 #'   \item{\code{clean_numeric()}: class \code{numeric}}
 #'   \item{\code{clean_character()}: class \code{character}}
+#'   \item{\code{clean_percentage()}: class \code{percentage}}
 #'   \item{\code{clean_currency()}: class \code{currency}}
 #'   \item{\code{clean_Date()}: class \code{Date}}
 #'   \item{\code{clean_POSIXct()}: classes \code{POSIXct/POSIXt}}
@@ -87,6 +89,7 @@
 #' clean_numeric("qwerty123456")
 #' clean_numeric("Positive (0.143)")
 #' clean_numeric("0,143")
+#' clean_percentage("PCT: 0.143")
 #' 
 #' clean_character("qwerty123456")
 #' clean_character("Positive (0.143)")
@@ -245,6 +248,12 @@ clean_currency <- function(x, currency_symbol = NULL, ...) {
     currency_symbol <- Sys.localeconv()["int_curr_symbol"]
   }
   as.currency(clean_numeric(x, ...), currency_symbol = currency_symbol)
+}
+
+#' @rdname clean
+#' @export
+clean_percentage <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
+  as.percentage(clean_numeric(x = x, remove = remove, fixed = fixed))
 }
 
 
