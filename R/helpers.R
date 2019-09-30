@@ -62,6 +62,21 @@ round2 <- function(x, digits = 0, force_zero = TRUE) {
   val
 }
 
+getdecimalplaces <- function(x, minimum = 0, maximum = 3) {
+  if (maximum < minimum) {
+    maximum <- minimum
+  }
+  if (minimum > maximum) {
+    minimum <- maximum
+  }
+  max_places <- max(unlist(lapply(strsplit(sub('0+$', '', 
+                                               as.character(x * 100)), ".", fixed = TRUE),
+                                  function(y) ifelse(length(y) == 2, nchar(y[2]), 0))), na.rm = TRUE)
+  max(min(max_places,
+          maximum, na.rm = TRUE),
+      minimum, na.rm = TRUE)
+}
+
 # Coefficient of variation (CV)
 cv <- function(x, na.rm = TRUE) {
   stats::sd(x, na.rm = na.rm) / base::abs(base::mean(x, na.rm = na.rm))
@@ -74,47 +89,4 @@ cqv <- function(x, na.rm = TRUE) {
   # m = p. p[k] = k / (n + 1). Thus p[k] = E[F(x[k])]. This is used by Minitab and by SPSS.
   quartiles <- stats::quantile(x, probs = c(0.25, 0.75), na.rm = na.rm, type = 6)
   (quartiles[2] - quartiles[1]) / (quartiles[2] + quartiles[1])
-}
-
-# No export, no Rd
-percent <- function(x, round = 1, force_zero = TRUE, decimal.mark = getOption("OutDec"), ...) {
-  
-  # source: scales::number -> scales::percent
-  percent_scales <- function (x,
-                              accuracy = NULL,
-                              scale = 100,
-                              prefix = "", 
-                              suffix = "%", 
-                              big.mark = ",",
-                              decimal.mark = ".",
-                              trim = TRUE, ...) {
-    if (length(x) == 0) 
-      return(character())
-    x <- round(x / (accuracy / scale)) * (accuracy / scale)
-    nsmall <- -floor(log10(accuracy))
-    nsmall <- min(max(nsmall, 0), 20)
-    if (decimal.mark == big.mark) {
-      if (decimal.mark == ",") {
-        big.mark <- "."
-      } else if (decimal.mark == ".") {
-        big.mark <- ","
-      } else {
-        big.mark <- " "
-      }
-    }
-    ret <- format(scale * x, big.mark = big.mark, decimal.mark = decimal.mark, 
-                  trim = trim, nsmall = nsmall, scientific = FALSE, ...)
-    ret <- paste0(prefix, ret, suffix)
-    ret[is.infinite(x)] <- as.character(x[is.infinite(x)])
-    ret
-  }
-  
-  x <- percent_scales(x = as.double(x),
-                      accuracy = 1 / 10 ^ round,
-                      decimal.mark = decimal.mark,
-                      ...)
-  if (force_zero == FALSE) {
-    x <- gsub("([.]%|%%)", "%", paste0(gsub("0+%$", "", x), "%"))
-  }
-  x
 }

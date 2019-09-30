@@ -24,6 +24,8 @@
 #' @param ... other parameters passed on to methods
 #' @param digits how many digits should be printed. It defaults to printing all decimals available in the data after transforming to a percentage, with a minimum of 0 and a maximum of 3.
 #' @details Printing percentages will always have a percentage symbol and is never written in scientific format (like 2.5e+04\%).
+#' 
+#' The function \code{percentage} is a wrapper around \code{format(as.percentage(...))} with automatic determination of the number of digits, varying between 0 and 1. It also rounds according to basic math rules: \code{percentage(0.4455)} returns \code{"44.6\%"} and not \code{"44.5\%"}. This function always returns a character, and can also be used in plotting, see Examples.
 #' @rdname percentage
 #' @name percentage
 #' @export
@@ -39,12 +41,28 @@
 #' as.percentage(pi)
 #' format(as.percentage(pi))
 #' format(as.percentage(pi), digits = 6)
+#' percentage(0.4455) # rounds to 44.6%
+#' 
+#' \dontrun{
+#' 
+#' library(ggplot2)
+#' ggplot(data.frame(a = LETTERS[1:6],
+#'                   b = runif(6)),
+#'        aes(a, b)) +
+#'   geom_col() + 
+#'   geom_label(aes(label = percentage(b))) +
+#'   scale_y_continuous(labels = percentage) 
+#' }
 as.percentage <- function(x, ...) {
   if (is.percentage(x)) {
     return(x)
   }
-  structure(.Data = as.double(x, ...),
-            class = c("percentage", "numeric"))
+  if (!is.numeric(x) & any(grepl("%", x), na.rm = TRUE)) {
+    clean_percentage(x, ...)
+  } else {
+    structure(.Data = as.double(x, ...),
+              class = c("percentage", "numeric"))
+  }
 }
 
 #' @noRd
@@ -108,15 +126,6 @@ print.percentage <- function(x, ...) {
   print(format(x), quote = FALSE)
 }
 
-getdecimalplaces <- function(x, minimum = 0, maximum = 3) {
-  max_places <- max(unlist(lapply(strsplit(sub('0+$', '', 
-                                               as.character(x * 100)), ".", fixed = TRUE),
-                                  function(y) ifelse(length(y) == 2, nchar(y[2]), 0))), na.rm = TRUE)
-  max(min(max_places,
-          maximum, na.rm = TRUE),
-      minimum, na.rm = TRUE)
-}
-
 #' @rdname percentage
 #' @exportMethod format.percentage
 #' @export
@@ -178,4 +187,16 @@ type_sum.percentage <- function(x) {
 #' @export
 pillar_shaft.percentage <- function (x, ...) {
   pillar_shaft(as.numeric(x) * 100, ...)
+}
+
+
+#' @rdname percentage
+#' @export
+percentage <- function(x, digits = NULL, ...) {
+  if (is.null(digits)) {
+    digits <- getdecimalplaces(x, minimum = 0, maximum = 1)
+  }
+  # round right: percentage(0.4455) should return "44.6%", not "44.5%"
+  x <- as.numeric(round2(x * 100, digits = digits)) / 100
+  format(as.percentage(x), digits = digits, ...)
 }

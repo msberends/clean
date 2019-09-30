@@ -397,7 +397,7 @@ freq.numeric <- function(x, ..., digits = 2) {
   # Five-Num:  14 | 63 | 74 | 82 | 97 (IQR: 19, CQV: 0.13)
   # Outliers:  32 (0.34%)
   
-  freq.default(x = x, ..., 
+  freq.default(x = x, digits = digits, ..., 
                .add_header = list(mean = round2(base::mean(x, na.rm = TRUE), digits = digits),
                                   SD = paste0(round2(stats::sd(x, na.rm = TRUE), digits = digits),
                                               " (CV: ", round2(cv(x, na.rm = TRUE), digits = digits),
@@ -408,8 +408,7 @@ freq.numeric <- function(x, ..., digits = 2) {
                                                       ", CQV: ", round2(cqv(x, na.rm = TRUE), digits = digits), 
                                                       ")"),
                                   outliers = paste0(length(Outliers$out),
-                                                    " (", percent(length(Outliers$out) / length(x[!is.na(x)]), 
-                                                                  force_zero = TRUE), ")")))
+                                                    " (", percentage(length(Outliers$out) / length(x[!is.na(x)]), digits = digits), ")")))
 }
 #' @exportMethod freq.double
 #' @export
@@ -513,7 +512,10 @@ format_header <- function(x, markdown = FALSE, decimal.mark = ".", big.mark = ",
   # length and NAs
   if (has_length == TRUE) {
     na_txt <- paste0(format(header$na_length, decimal.mark = decimal.mark, big.mark = big.mark), " = ",
-                     sub("NaN", "0", percent(header$na_length / header$length, force_zero = TRUE, round = digits, decimal.mark = decimal.mark), fixed = TRUE))
+                     sub("NaN", "0", percentage(header$na_length / header$length, 
+                                                digits = getdecimalplaces(header$na_length / header$length, minimum = 0, maximum = digits),
+                                                decimal.mark = decimal.mark), 
+                         fixed = TRUE))
     if (!grepl("^0 =", na_txt)) {
       na_txt <- red(na_txt)
     } else {
@@ -744,7 +746,7 @@ print.freq <- function(x,
                     " entries, n = ",
                     format(x.unprinted, big.mark = opt$big.mark, decimal.mark = opt$decimal.mark),
                     " (",
-                    percent(x.unprinted / (x.unprinted + x.printed), force_zero = TRUE, decimal.mark = opt$decimal.mark),
+                    percentage(x.unprinted / (x.unprinted + x.printed), digits = opt$digits, decimal.mark = opt$decimal.mark),
                     ") ]\n", sep = "")
     if (opt$tbl_format == "pandoc") {
       footer <- silver(footer) # only silver in regular printing
@@ -757,7 +759,7 @@ print.freq <- function(x,
                       " entries, n = ",
                       format(x.unprinted, big.mark = opt$big.mark, decimal.mark = opt$decimal.mark),
                       " [",
-                      percent(x.unprinted / (x.unprinted + x.printed), force_zero = TRUE, decimal.mark = opt$decimal.mark),
+                      percentage(x.unprinted / (x.unprinted + x.printed), digits = opt$digits, decimal.mark = opt$decimal.mark),
                       "])\n", sep = "")
     } else {
       footer <- NULL
@@ -784,7 +786,7 @@ print.freq <- function(x,
     opt$column_names <- opt$column_names[!opt$column_names == "Count"]
   }
   if ("percent" %in% colnames(x)) {
-    x$percent <- percent(x$percent, force_zero = TRUE, decimal.mark = opt$decimal.mark)
+    x$percent <- percentage(x$percent, digits = getdecimalplaces(x$percent, minimum = 1, maximum = opt$digits), decimal.mark = opt$decimal.mark)
   } else {
     opt$column_names <- opt$column_names[!opt$column_names == "Percent"]
   }
@@ -794,7 +796,7 @@ print.freq <- function(x,
     opt$column_names <- opt$column_names[!opt$column_names == "Cum. Count"]
   }
   if ("cum_percent" %in% colnames(x)) {
-    x$cum_percent <- percent(x$cum_percent, force_zero = TRUE, decimal.mark = opt$decimal.mark)
+    x$cum_percent <- percentage(x$cum_percent, digits = getdecimalplaces(x$cum_percent, minimum = 1, maximum = opt$digits), decimal.mark = opt$decimal.mark)
   } else {
     opt$column_names <- opt$column_names[!opt$column_names == "Cum. Percent"]
   }
@@ -933,8 +935,8 @@ format.freq <- function(x, digits = 1, ...) {
   }
 
   x <- x[1:nmax,]
-  x$percent <- percent(x$percent, round = digits, force_zero = TRUE)
-  x$cum_percent <- percent(x$cum_percent, round = digits, force_zero = TRUE)
+  x$percent <- percentage(x$percent, digits = digits)
+  x$cum_percent <- percentage(x$cum_percent, digits = digits)
   base::format.data.frame(x, ...)
 }
 

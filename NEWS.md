@@ -4,6 +4,7 @@
 * More robust coercing of dates
 * Support for negative values for `clean_numeric()`, `clean_percentage()` and `clean_currency()`
 * Fix for `clean_character()` on R v3.5 and lower
+* Fix for digits in frequency tables for numeric values
 
 # clean 1.1.0
 
