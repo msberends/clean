@@ -1,6 +1,8 @@
 # clean 1.1.0.9000
 
 * Added support for percentages as a new class: `as.percentage()` and `clean_percentage()`. They also come with 'S3 methods' for `print`, `format`, `sum`, `min` and `max`.
+* More robust coercing of dates
+* Support for negative values for `clean_numeric()`, `clean_percentage()` and `clean_currency()`
 * Fix for `clean_character()` on R v3.5 and lower
 
 # clean 1.1.0

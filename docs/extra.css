@@ -19,6 +19,12 @@
 # ==================================================================== #
 */
 
+/* keep messages in original output colour */
+.message, .warning {
+  color: #aaaaaa;
+  font-style: italic;
+}
+
 /* make colour darker and better readable for links */
 code a, code a:hover, code a:focus,
 pre a, pre a:hover, pre a:focus,

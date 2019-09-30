@@ -26,18 +26,19 @@ clean_logical(x, true = regex_true(), false = regex_false(),
 clean_factor(x, levels = unique(x), ordered = FALSE,
   droplevels = FALSE, fixed = FALSE, ignore.case = TRUE)
 
-clean_numeric(x, remove = "[^0-9.,]", fixed = FALSE)
+clean_numeric(x, remove = "[^0-9.,-]", fixed = FALSE)
 
 clean_character(x, remove = "[^a-z \\t\\r\\n]", fixed = FALSE,
   ignore.case = TRUE, trim = TRUE)
 
-clean_currency(x, currency_symbol = NULL, ...)
+clean_currency(x, currency_symbol = NULL, remove = "[^0-9.,-]",
+  fixed = FALSE)
 
-clean_percentage(x, remove = "[^0-9.,]", fixed = FALSE)
+clean_percentage(x, remove = "[^0-9.,-]", fixed = FALSE)
 
-clean_Date(x, format = NULL, ...)
+clean_Date(x, format = NULL, guess_each = FALSE, ...)
 
-clean_POSIXct(x, remove = "[^.0-9 :/-]", fixed = FALSE, ...)
+clean_POSIXct(x, tz = "", remove = "[^.0-9 :/-]", fixed = FALSE, ...)
 }
 \arguments{
 \item{x}{data to clean}
@@ -64,9 +65,17 @@ clean_POSIXct(x, remove = "[^.0-9 :/-]", fixed = FALSE, ...)
 
 \item{currency_symbol}{the currency symbol to use, which will be guessed based on the input and otherwise defaults to the current system locale setting (see \code{\link{Sys.localeconv}})}
 
-\item{...}{other parameters passed on to \code{\link{as.Date}} or \code{\link{as.POSIXct}}}
-
 \item{format}{a date format that will be passed on to \code{\link{format_datetime}}, see Details}
+
+\item{guess_each}{logical to indicate whether all items of \code{x} should be guessed one by one, see Examples}
+
+\item{...}{for \code{clean_Date} and \code{clean_POSIXct}: other parameters passed on these functions}
+
+\item{tz}{time zone specification to be used for the conversion,
+    \emph{if one is required}.  System-specific (see \link{time zones}),
+    but \code{""} is the current time zone, and \code{"GMT"} is UTC
+    (Universal Time, Coordinated).  Invalid values are most commonly
+    treated as UTC, on some platforms with a warning.}
 }
 \value{
 The \code{clean} functions \strong{always} return the class from the function name:
@@ -114,26 +123,37 @@ clean_factor(gender_age, c("Male", "Female"))
 clean_factor(gender_age, c("0-50", "50+"), ordered = TRUE)
 
 clean_Date("13jul18", "ddmmmyy")
-clean_Date("12 august 2010")
+clean_Date("12 August 2010")
 clean_Date("12 06 2012")
-clean_Date(36526) # Excel date
+clean_Date("October 1st 2012")
 clean_Date("43658")
-clean_Date("14526", "Excel") # "1939-10-08"
+clean_Date("14526", "Excel")
+clean_Date(c("1 Oct 13", "October 1st 2012")) # could not be fitted in 1 format
+clean_Date(c("1 Oct 13", "October 1st 2012"), guess_each = TRUE)
 
-clean_POSIXct("Created log on 2019/04/11 11:23 by user Joe")
+clean_POSIXct("Created log on 2019/02/11 11:23 by user Joe")
+clean_POSIXct("Created log on 2019.02.11 11:23 by user Joe", tz = "UTC")
 
 clean_numeric("qwerty123456")
 clean_numeric("Positive (0.143)")
 clean_numeric("0,143")
+clean_numeric("minus 12 degrees")
+
 clean_percentage("PCT: 0.143")
+clean_percentage(c("Total of -12.3\%", "Total of +4.5\%"))
 
 clean_character("qwerty123456")
 clean_character("Positive (0.143)")
 
-clean_currency(c("Received $ 25", "Received $ 31.40"))
+clean_currency(c("Received 25", "Received 31.40"))
 clean_currency(c("Jack sent £ 25", "Bill sent £ 31.40"))
  
 clean("12 06 2012")
-clean(data.frame(dates = "2013-04-02", 
-                 logicals = c("yes", "no")))
+
+df <- data.frame(A = c("2 Apr 2016", "5 Feb 2019"), 
+                 B = c("yes", "no"),
+                 C = c("Total of -12.3\%", "Total of +4.5\%"),
+                 D = c("Marker: 0.4513 mmol/l", "Marker: 0.2732 mmol/l"))
+df
+clean(df)
 }

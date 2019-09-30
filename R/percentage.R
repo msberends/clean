@@ -19,7 +19,7 @@
 
 #' Transform to percentage
 #' 
-#' Transform input to a percentage. The actual values are numeric, but will be printed as formatted percentage.
+#' Transform input to a percentage. The actual values are numeric, but will be printed as formatted percentages.
 #' @param x input
 #' @param ... other parameters passed on to methods
 #' @param digits how many digits should be printed. It defaults to printing all decimals available in the data after transforming to a percentage, with a minimum of 0 and a maximum of 3.
@@ -124,7 +124,9 @@ format.percentage <- function(x, digits = NULL, ...) {
   if (is.null(digits)) {
     digits <- getdecimalplaces(x)
   }
-  paste0(format(as.double(x) * 100, scientific = FALSE, digits = digits + 3, ...), "%")
+  x_formatted <- format(as.double(x) * 100, scientific = FALSE, digits = digits, nsmall = digits, ...)
+  x_formatted[!is.na(x)] <- paste0(x_formatted[!is.na(x)], "%")
+  x_formatted
 }
 
 #' @noRd
@@ -156,14 +158,6 @@ mean.percentage <- function(x, ...) {
 }
 
 #' @noRd
-#' @exportMethod median.percentage
-#' @importFrom stats median
-#' @export
-median.percentage <- function(x, ...) {
-  as.percentage(median(as.double(x), ...))
-}
-
-#' @noRd
 #' @exportMethod summary.percentage
 #' @export
 summary.percentage <- function(object, ...) {
@@ -182,8 +176,6 @@ type_sum.percentage <- function(x) {
 
 #' @importFrom pillar pillar_shaft
 #' @export
-pillar_shaft.percentage <- function (x, ..., sigfig = getOption("pillar.sigfig", 3)) {
-  out <- format(x)
-  out[is.na(x)] <- pillar::style_na(NA)
-  pillar::new_pillar_shaft_simple(out, align = "right", ...)
+pillar_shaft.percentage <- function (x, ...) {
+  pillar_shaft(as.numeric(x) * 100, ...)
 }

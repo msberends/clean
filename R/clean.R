@@ -33,7 +33,9 @@
 #' @param ignore.case logical to indicate whether matching should be case-insensitive
 #' @param format a date format that will be passed on to \code{\link{format_datetime}}, see Details
 #' @param currency_symbol the currency symbol to use, which will be guessed based on the input and otherwise defaults to the current system locale setting (see \code{\link{Sys.localeconv}})
-#' @param ... other parameters passed on to \code{\link{as.Date}} or \code{\link{as.POSIXct}}
+#' @param guess_each logical to indicate whether all items of \code{x} should be guessed one by one, see Examples
+#' @param ... for \code{clean_Date} and \code{clean_POSIXct}: other parameters passed on these functions
+#' @inheritParams base::as.POSIXct
 #' @details
 #' Using \code{clean()} on a vector will guess a cleaning function based on the potential number of \code{NAs} it returns. Using \code{clean()} on a data.frame to apply this guessed cleaning over all columns.
 #' 
@@ -78,28 +80,39 @@
 #' clean_factor(gender_age, c("0-50", "50+"), ordered = TRUE)
 #' 
 #' clean_Date("13jul18", "ddmmmyy")
-#' clean_Date("12 august 2010")
+#' clean_Date("12 August 2010")
 #' clean_Date("12 06 2012")
-#' clean_Date(36526) # Excel date
+#' clean_Date("October 1st 2012")
 #' clean_Date("43658")
-#' clean_Date("14526", "Excel") # "1939-10-08"
+#' clean_Date("14526", "Excel")
+#' clean_Date(c("1 Oct 13", "October 1st 2012")) # could not be fitted in 1 format
+#' clean_Date(c("1 Oct 13", "October 1st 2012"), guess_each = TRUE)
 #' 
-#' clean_POSIXct("Created log on 2019/04/11 11:23 by user Joe")
+#' clean_POSIXct("Created log on 2019/02/11 11:23 by user Joe")
+#' clean_POSIXct("Created log on 2019.02.11 11:23 by user Joe", tz = "UTC")
 #' 
 #' clean_numeric("qwerty123456")
 #' clean_numeric("Positive (0.143)")
 #' clean_numeric("0,143")
+#' clean_numeric("minus 12 degrees")
+#' 
 #' clean_percentage("PCT: 0.143")
+#' clean_percentage(c("Total of -12.3%", "Total of +4.5%"))
 #' 
 #' clean_character("qwerty123456")
 #' clean_character("Positive (0.143)")
 #' 
-#' clean_currency(c("Received $ 25", "Received $ 31.40"))
+#' clean_currency(c("Received 25", "Received 31.40"))
 #' clean_currency(c("Jack sent £ 25", "Bill sent £ 31.40"))
 #'  
 #' clean("12 06 2012")
-#' clean(data.frame(dates = "2013-04-02", 
-#'                  logicals = c("yes", "no")))
+#' 
+#' df <- data.frame(A = c("2 Apr 2016", "5 Feb 2019"), 
+#'                  B = c("yes", "no"),
+#'                  C = c("Total of -12.3%", "Total of +4.5%"),
+#'                  D = c("Marker: 0.4513 mmol/l", "Marker: 0.2732 mmol/l"))
+#' df
+#' clean(df)
 clean <- function(x) {
   UseMethod("clean")
 }
@@ -107,18 +120,34 @@ clean <- function(x) {
 #' @exportMethod clean.default
 #' @export
 #' @noRd
-clean.default <- function(x) {
+clean.default <- function(x, ...) {
   x_withoutNA <- x[!is.na(x)]
-  fns <- c("Date", "numeric", "logical", "character")
+  fns <- c("Date", "percentage", "numeric", "logical", "character")
+  n_valid <- integer(length(fns))
   for (i in 1:length(fns)) {
     fn <- get(paste0("clean_", fns[i]), envir = asNamespace("clean"))
-    if (all(!is.na(suppressWarnings(suppressMessages(fn(x_withoutNA)))))) {
-      message("Cleaning to class '", fns[i], "'")
-      return(fn(x_withoutNA))
-    }
+    n_valid[i] <- sum(!is.na(suppressWarnings(suppressMessages(fn(x_withoutNA)))))
   }
-  warning("no appropriate cleaning function found")
-  x
+  class_winner <- fns[n_valid == max(n_valid)][1L]
+  if (max(n_valid) == 0) {
+    warning("no appropriate cleaning function found")
+    return(x)
+  }
+  
+  # determine the winner
+  if (class_winner == "Date") {
+    end_with_LF <- FALSE
+  } else {
+    end_with_LF <- TRUE
+  }
+  if (!is.null(list(...)$variable)) {
+    message("Note: Assuming class '", class_winner, "' for variable '", list(...)$variable, "' ", appendLF = end_with_LF)
+  } else {
+    message("Note: Assuming class '", class_winner, "' ", appendLF = end_with_LF)
+  }
+  
+  fn_winner <- get(paste0("clean_", class_winner), envir = asNamespace("clean"))
+  fn_winner(x)
 }
 
 #' @exportMethod clean.data.frame
@@ -127,8 +156,7 @@ clean.default <- function(x) {
 clean.data.frame <- function(x) {
   n <- 0
   as.data.frame(lapply(x, function(y) {
-    message("[VARIABLE '", colnames(x)[n <<- n + 1], "'] ", appendLF = FALSE)
-    clean(y)
+    clean.default(y, variable = colnames(x)[n <<- n + 1])
   }), stringsAsFactors = FALSE)
 }
 
@@ -190,7 +218,7 @@ clean_factor <- function(x, levels = unique(x), ordered = FALSE, droplevels = FA
 
 #' @rdname clean
 #' @export
-clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
+clean_numeric <- function(x, remove = "[^0-9.,-]", fixed = FALSE) {
   x <- gsub(",", ".", x)
   # remove ending dot/comma
   x <- gsub("[,.]$", "", x)
@@ -203,7 +231,18 @@ clean_numeric <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
                             fixed = TRUE)),
                 fixed = TRUE), 
            fixed = TRUE)
-  as.numeric(gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed))
+  # keep minus
+  x <- gsub("(minus|min|-) ?([0-9.])", "{{minus}}\\2", x, ignore.case = TRUE)
+  x <- gsub("-", "", x, fixed = TRUE)
+  x <- gsub("{{minus}}", "-", x, fixed = TRUE)
+  x_clean <- gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed)
+  # get the ones starting with a minus
+  x_below0 <- grepl("^-", x_clean)
+  # remove everything that is not a number or dot
+  x_numeric <- as.numeric(gsub("[^0-9.]+", "", x_clean))
+  # set minus where needed
+  x_numeric[x_below0] <- -x_numeric[x_below0]
+  x_numeric
 }
 
 #' @rdname clean
@@ -219,14 +258,14 @@ clean_character <- function(x, remove = "[^a-z \t\r\n]", fixed = FALSE, ignore.c
 
 #' @rdname clean
 #' @export
-clean_currency <- function(x, currency_symbol = NULL, ...) {
+clean_currency <- function(x, currency_symbol = NULL, remove = "[^0-9.,-]", fixed = FALSE) {
   if (isTRUE(any(grepl("[^a-zA-Z]([\u0024]|USD)", x)))) { # Dollar Sign
     currency_symbol <- "USD"
   } else if (isTRUE(any(grepl("[^a-zA-Z]([\u20ac]|EUR)", x)))) { # Euro sign
     currency_symbol <- "EUR"
   } else if (isTRUE(any(grepl("[^a-zA-Z]([\u00a5]|JPY)", x)))) { # Yen sign
     currency_symbol <- "JPY"
-  } else if (isTRUE(any(grepl("[^a-zA-Z]([\u00a3]|GBP)", x)))) {
+  } else if (isTRUE(any(grepl("[^a-zA-Z]([\u00a3]|GBP)", x)))) { # Pound sign
     currency_symbol <- "GBP"
   } else if (isTRUE(any(grepl("[^a-zA-Z](Fr|CHF)", x)))) {
     currency_symbol <- "CHF"
@@ -245,21 +284,35 @@ clean_currency <- function(x, currency_symbol = NULL, ...) {
   } else if (isTRUE(any(grepl("[^a-zA-Z](ZAR)", x)))) {
     currency_symbol <- "ZAR"
   } else {
-    currency_symbol <- Sys.localeconv()["int_curr_symbol"]
+    currency_symbol <- trimws(Sys.localeconv()["int_curr_symbol"])
   }
-  as.currency(clean_numeric(x, ...), currency_symbol = currency_symbol)
+  as.currency(clean_numeric(x = x, remove = remove, fixed = fixed), currency_symbol = currency_symbol)
 }
 
 #' @rdname clean
 #' @export
-clean_percentage <- function(x, remove = "[^0-9.,]", fixed = FALSE) {
-  as.percentage(clean_numeric(x = x, remove = remove, fixed = fixed))
+clean_percentage <- function(x, remove = "[^0-9.,-]", fixed = FALSE) {
+  x_clean <- clean_numeric(x = x, remove = remove, fixed = fixed)
+  x_tested <- logical(length(x))
+  for (i in 1:length(x)) {
+    x_tested[i] <- grepl(pattern = paste0(x_clean[i], ".?(%|percent|pct)"),
+                         x = x[i], ignore.case = TRUE) |
+      grepl(pattern = "(percent|pct)",
+            x = x[i],
+            ignore.case = TRUE)
+  }
+  if (all(x_tested)) {
+    as.percentage(x_clean / 100)
+  } else {
+    # they were no percentages, so return NAs
+    as.percentage(rep(NA_integer_, length(x)))
+  }
 }
 
 
 #' @rdname clean
 #' @export
-clean_Date <- function(x, format = NULL, ...) {
+clean_Date <- function(x, format = NULL, guess_each = FALSE, ...) {
   if (!is.null(format)) {
     if (tolower(format) == "excel") {
       return(as.Date(as.numeric(x), origin = "1899-12-30"))
@@ -267,15 +320,22 @@ clean_Date <- function(x, format = NULL, ...) {
       return(as.Date(x = x, format = format_datetime(format), ...))
     }
   }
-  
-  x.bak <- x
-  
-  # start guessing
-  msg_clean_as <- function(format_set) {
-    if (tolower(format_set) == "excel") {
-      message("Cleaning dates using Excel format")
-    } else {
-      message("Cleaning dates using format '", format_set, "' ('", format_datetime(format_set), "')")
+
+  if (guess_each == FALSE) {
+    guess_Date(x = x, throw_note = TRUE)
+  } else {
+    as.Date(unname(sapply(x, guess_Date, throw_note = FALSE)), origin = "1970-01-01")
+  }
+}
+
+guess_Date <- function(x, throw_note = TRUE) {
+  msg_clean_as <- function(format_set, sep = " ") {
+    if (throw_note == TRUE) {
+      if (tolower(format_set) == "excel") {
+        message("(assuming Excel format)")
+      } else {
+        message("(assuming format '", gsub(" ", sep, format_set, fixed = TRUE), "')")
+      }
     }
   }
   
@@ -286,14 +346,17 @@ clean_Date <- function(x, format = NULL, ...) {
     return(as.Date(x_numeric, origin = "1899-12-30"))
   }
   
-  
   # replace any non-number/separators ("-", ".", etc.) with space
+  separator <- ifelse(grepl("[0-9]-", x) & !grepl("[0-9]-$", x), "-",
+                      ifelse(grepl("[0-9][.]", x) & !grepl("[0-9][.]$", x), ".",
+                             " "))[1L]
   x <- trimws(gsub("[^0-9a-z]+", " ", x, ignore.case = TRUE))
   
   # remove 1st, 2nd, 3rd, 4th followed by a space or at the end
-  x <- gsub("([0-9])(st|nd|rd|th) ", "\\1", x, ignore.case = TRUE)
+  x <- gsub("([0-9])(st|nd|rd|th) ", "\\1 ", x, ignore.case = TRUE)
   x <- gsub("([0-9])(st|nd|rd|th)$", "\\1", x, ignore.case = TRUE)
   
+  new_format <- NULL
   # first check if format is like 1-2 digits, text, 2-4 digits (12 August 2010) which is observed a lot
   if (all(grepl("^[0-9]+ [a-z]+ [0-9]+$", x[!is.na(x)], ignore.case = TRUE))) {
     if (all(grepl("^[0-9]{2} [a-z]{3} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "dd mmm yyyy"
@@ -304,8 +367,24 @@ clean_Date <- function(x, format = NULL, ...) {
     if (all(grepl("^[0-9]{2} [a-z]{4,} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "dd mmmm yy"
     if (all(grepl("^[0-9]{1} [a-z]{4,} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "d mmmm yyyy"
     if (all(grepl("^[0-9]{1} [a-z]{4,} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "d mmmm yy"
-    msg_clean_as(new_format)
-    return(as.Date(as.character(x), format = format_datetime(new_format)))
+    if (!is.null(new_format)) {
+      msg_clean_as(new_format, sep = separator)
+      return(as.Date(as.character(x), format = format_datetime(new_format)))
+    }
+  } else if (all(grepl("^[a-z]+ [0-9]+ [0-9]+$", x[!is.na(x)], ignore.case = TRUE))) {
+    # then text, 1-2 digits, 2-4 digits (like October 21 2012)
+    if (all(grepl("^[a-z]{4,} [0-9]{1} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmmm d yy"
+    if (all(grepl("^[a-z]{4,} [0-9]{1} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmmm d yyyy"
+    if (all(grepl("^[a-z]{4,} [0-9]{2} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmmm dd yy"
+    if (all(grepl("^[a-z]{4,} [0-9]{2} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmmm dd yyyy"
+    if (all(grepl("^[a-z]{3} [0-9]{1} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmm d yy"
+    if (all(grepl("^[a-z]{3} [0-9]{1} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmm d yyyy"
+    if (all(grepl("^[a-z]{3} [0-9]{2} [0-9]{2}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmm dd yy"
+    if (all(grepl("^[a-z]{3} [0-9]{2} [0-9]{4}$", x[!is.na(x)], ignore.case = TRUE))) new_format <- "mmm dd yyyy"
+    if (!is.null(new_format)) {
+      msg_clean_as(new_format, sep = separator)
+      return(as.Date(as.character(x), format = format_datetime(new_format)))
+    }
   }
   
   # now remove spaces too
@@ -334,7 +413,7 @@ clean_Date <- function(x, format = NULL, ...) {
       if (all(!is.na(validated_dates))
           & all(validated_dates > as.Date("1900-01-01"))
           & (all(grepl("[a-zA-Z]", x)) | all(nchar(x) == nchar(format[i])))) {
-        msg_clean_as(format_spaced[i])
+        msg_clean_as(format_spaced[i], sep = separator)
         return(format_datetime(format[i]))
       }
     }
@@ -374,8 +453,8 @@ clean_Date <- function(x, format = NULL, ...) {
 
 #' @rdname clean
 #' @export
-clean_POSIXct <- function(x, remove = "[^.0-9 :/-]", fixed = FALSE, ...) {
+clean_POSIXct <- function(x, tz = "", remove = "[^.0-9 :/-]", fixed = FALSE, ...) {
   x <- trimws(gsub_warn_on_error(remove, "", x, ignore.case = TRUE, fixed = fixed))
   x <- gsub("[\\./]", "-", x)
-  as.POSIXct(x, ...)
+  as.POSIXct(x, tz = tz, ...)
 }

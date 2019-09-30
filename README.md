@@ -8,6 +8,8 @@
 
 The R package for **cleaning and checking data columns** in a fast and easy way. Relying on very few dependencies, it provides **smart guessing**, but with user options to override anything if needed.
 
+It also provides two new data types that are not available in base R: [`currency`](./reference/currency.html) and [`percentage`](./reference/percentage.html).
+
 ----
 
 Contents:
@@ -181,7 +183,7 @@ Use `clean()` to clean data. It guesses what kind of data class would best fit y
   #> [1] "Pro A1" "Pro A1" "Pro A1"
   ```
   
-* `clean_percentage()` to use the new `percentage` class that comes with this package. It prints numeric values as percentages:
+* `clean_percentage()` to use the new `percentage` class that comes with this package. It prints numeric values as percentages using `as.percentage()`:
   
   ```r
   as.percentage(c(0.25, 2.5, 0.025))

@@ -82,6 +82,7 @@
 <p><strong>Website of this package: <a href="https://msberends.github.io/clean" class="uri">https://msberends.github.io/clean</a></strong></p>
 <p><a href="https://CRAN.R-project.org/package=clean"><img src="https://www.r-pkg.org/badges/version/clean" alt="CRAN_Badge"></a></p>
 <p>The R package for <strong>cleaning and checking data columns</strong> in a fast and easy way. Relying on very few dependencies, it provides <strong>smart guessing</strong>, but with user options to override anything if needed.</p>
+<p>It also provides two new data types that are not available in base R: <a href="./reference/currency.html"><code>currency</code></a> and <a href="./reference/percentage.html"><code>percentage</code></a>.</p>
 <hr>
 <p>Contents:</p>
 <ul>
@@ -226,7 +227,7 @@
 <a class="sourceLine" id="cb12-5" data-line-number="5"><span class="co">#&gt; [1] "Pro A1" "Pro A1" "Pro A1"</span></a></code></pre></div>
 </li>
 <li>
-<p><code><a href="reference/clean.html">clean_percentage()</a></code> to use the new <code>percentage</code> class that comes with this package. It prints numeric values as percentages:</p>
+<p><code><a href="reference/clean.html">clean_percentage()</a></code> to use the new <code>percentage</code> class that comes with this package. It prints numeric values as percentages using <code><a href="reference/percentage.html">as.percentage()</a></code>:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="reference/percentage.html">as.percentage</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.25</span>, <span class="fl">2.5</span>, <span class="fl">0.025</span>))</a>
 <a class="sourceLine" id="cb13-2" data-line-number="2"><span class="co">#&gt; [1]  25.0% 250.0%   2.5%</span></a>
 <a class="sourceLine" id="cb13-3" data-line-number="3"></a>

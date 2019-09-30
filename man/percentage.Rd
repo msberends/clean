@@ -24,7 +24,7 @@ is.percentage(x)
 \item{digits}{how many digits should be printed. It defaults to printing all decimals available in the data after transforming to a percentage, with a minimum of 0 and a maximum of 3.}
 }
 \description{
-Transform input to a percentage. The actual values are numeric, but will be printed as formatted percentage.
+Transform input to a percentage. The actual values are numeric, but will be printed as formatted percentages.
 }
 \details{
 Printing percentages will always have a percentage symbol and is never written in scientific format (like 2.5e+04\%).
