@@ -1,8 +1,0 @@
-^.*\.Rproj$
-^\.Rproj\.user$
-^data_raw$
-^docs$
-^pkgdown$
-^_pkgdown.yml$
-^CRAN-RELEASE$
-^cran-comments\.md$
