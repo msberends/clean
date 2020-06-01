@@ -1,0 +1,23 @@
+Package: clean
+Title: Fast and Easy Data Cleaning
+Version: 2.0.0
+Date: 2020-06-01
+Authors@R: 
+  person(
+    given = c("Matthijs", "S."),
+    family = "Berends",
+    email = "m.s.berends@umcg.nl",
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0001-7620-1800"))
+Description: A wrapper around the new 'cleaner' package, that allows
+  data cleaning functions for classes 'logical', 'factor', 'numeric', 
+  'character', 'currency' and 'Date' to make data cleaning fast and
+  easy. Relying on very few dependencies, it provides smart guessing,
+  but with user options to override anything if needed.
+Depends: R (>= 3.0.0), cleaner (>= 1.2.0)
+URL: https://github.com/msberends/cleaner
+BugReports: https://github.com/msberends/cleaner/issues
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
